@@ -10,4 +10,5 @@ module ProtocolBuffers
   end
 end
 
+require 'protocol_buffers_ext'
 require 'protocol_buffers/runtime/message'

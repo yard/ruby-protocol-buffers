@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
-require "protocol_buffers"
+# $:.push File.expand_path("../lib", __FILE__)
+# require "protocol_buffers"
 
 Gem::Specification.new do |s|
   s.name        = "ruby-protocol-buffers"
-  s.version     = ProtocolBuffers::VERSION
+  s.version     = '1.2.4'
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Brian Palmer", "Rob Marable", "Paulo Luis Franchini Casaretto"]
   s.email       = ["brian@codekitchen.net"]
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
-
+  s.extensions = ['ext/extconf.rb']
   s.extra_rdoc_files << "Changelog.md"
 
   s.add_development_dependency "rspec", "~> 2.5"
