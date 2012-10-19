@@ -12,8 +12,7 @@ ensuring compatibility and correctness.
 
 This library is heavily optimized for encoding and decoding speed. There is a
 small C extension available in the ext/ dir that will improve performance even
-further, but it is currently disabled to avoid rubygems having to compile a
-native extension. TODO: anybody know if we can make this optional?
+further. The encoding performance is currently limited by the ruby IO performance, which could be further improved in C. 
 
 Because this is a tool for generating code, the RDoc documentation is a bit
 unusual. See the text in the ProtocolBuffers::Message class for details on what
