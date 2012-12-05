@@ -20,8 +20,20 @@ module ProtocolBuffers
         tag = (field.tag << 3) | wire_type
 
         if field.repeated?
-          value.each { |i| serialize_field(io, tag, wire_type,
-                                           field.serialize(i)) }
+          next if value.size == 0
+
+          if field.packed?
+            # encode packed field in a LENGTH_DELIMITED wire
+            wire_type = 2
+            tag = (field.tag << 3) | wire_type
+            buf = StringIO.new
+            value.each { |x| Varint.encode(buf, x) }
+            Varint.encode(io, tag)
+            Varint.encode(io, buf.size)
+            io.write buf.string
+          else
+            value.each { |i| serialize_field(io, tag, wire_type, field.serialize(i)) }
+          end
         else
           serialize_field(io, tag, wire_type, field.serialize(value))
         end

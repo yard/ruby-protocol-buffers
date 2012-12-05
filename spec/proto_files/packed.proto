@@ -1,0 +1,11 @@
+package packed;
+
+message Test {
+  // VARINT types
+  repeated int32    a = 4  [packed=true];
+  repeated int64    b = 5  [packed=true];
+  repeated uint32   c = 6  [packed=true];
+  repeated uint64   d = 7  [packed=true];
+  repeated sint32   e = 8  [packed=true];
+  repeated sint64   f = 9  [packed=true];
+};

@@ -9,17 +9,66 @@ require 'protocol_buffers/compiler'
 describe ProtocolBuffers, "runtime" do
   before(:each) do
     # clear our namespaces
-    Object.send(:remove_const, :Simple) if defined?(Simple)
-    Object.send(:remove_const, :Featureful) if defined?(Featureful)
-    Object.send(:remove_const, :Foo) if defined?(Foo)
-    Object.send(:remove_const, :TehUnknown) if defined?(TehUnknown)
-    Object.send(:remove_const, :TehUnknown2) if defined?(TehUnknown2)
-    Object.send(:remove_const, :TehUnknown3) if defined?(TehUnknown3)
+    %w( Simple Featureful Foo Packed TehUnknown TehUnknown2 TehUnknown3 ).each do |klass|
+      Object.send(:remove_const, klass.to_sym) if Object.const_defined?(klass.to_sym)
+    end
 
-    ProtocolBuffers::Compiler.compile_and_load(
-      File.join(File.dirname(__FILE__), "proto_files", "simple.proto"))
-    ProtocolBuffers::Compiler.compile_and_load(
-      File.join(File.dirname(__FILE__), "proto_files", "featureful.proto"))
+    # load test protos
+    %w( simple featureful packed ).each do |proto|
+      proto_file = File.join(File.dirname(__FILE__), "proto_files", "#{proto}.proto")
+      ProtocolBuffers::Compiler.compile_and_load(proto_file)
+    end
+  end
+
+  context "packed field handling" do
+
+    before :each do
+      @packed = Packed::Test.new
+    end
+
+    it "does not encode empty field" do
+      @packed.a = [ ]
+      @packed.to_s.should == ""
+
+      ser = ProtocolBuffers.bin_sio(@packed.to_s)
+      unpacked = Packed::Test.parse(ser)
+      unpacked.a.should == [ ]
+    end
+
+    it "correctly encodes repeated field" do
+      # Example values from https://developers.google.com/protocol-buffers/docs/encoding.
+      @packed.a  = [ 3, 270 ]
+      @packed.a << 86942
+      @packed.to_s.should == "\x22\x06\x03\x8e\x02\x9e\xa7\x05"
+
+      ser = ProtocolBuffers.bin_sio(@packed.to_s)
+      unpacked = Packed::Test.parse(ser)
+      unpacked.a.should == [ 3, 270, 86942 ]
+    end
+
+    it "handles primitive numeric data types" do
+      types_to_be_packed = {
+        int32:  { field: :a, value: [ 0, 1, 1 ] },
+        int64:  { field: :b, value: [ 2, 3, 5 ] },
+        uint32: { field: :c, value: [ 8, 13, 21 ] },
+        uint64: { field: :d, value: [ 34, 55, 89 ] },
+        sint32: { field: :e, value: [ -114, 233, -377 ] },
+        sint64: { field: :f, value: [ 610, -987, 1597 ] }
+      }
+
+      types_to_be_packed.values.each do |v|
+        @packed.send("#{v[:field]}=", v[:value])
+      end
+
+      ser = ProtocolBuffers.bin_sio(@packed.to_s)
+      unpacked = Packed::Test.parse(ser)
+
+      types_to_be_packed.values.each do |v|
+        unpacked.send(v[:field]).should == v[:value]
+      end
+
+    end
+
   end
 
   it "can handle basic operations" do
@@ -279,7 +328,7 @@ describe ProtocolBuffers, "runtime" do
   end
 
   it "responds to gen_methods! for backwards compat" do
-    A.gen_methods!
+    Featureful::A.gen_methods!
   end
 
   def filled_in_bit
