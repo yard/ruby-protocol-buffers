@@ -1,7 +1,6 @@
-module ProtocolBuffers
-  VERSION = File.read(File.join(File.dirname(__FILE__), "..", "VERSION")).chomp
+require 'stringio'
 
-  require 'stringio'
+module ProtocolBuffers
   # for 1.9.2 compatibility
   def self.bin_sio(*args)
     sio = StringIO.new(*args)
@@ -10,4 +9,5 @@ module ProtocolBuffers
   end
 end
 
+require 'protocol_buffers/version'
 require 'protocol_buffers/runtime/message'
