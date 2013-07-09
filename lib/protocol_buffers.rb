@@ -6,7 +6,7 @@ module ProtocolBuffers
     sio = StringIO.new(*args)
     sio.set_encoding('binary') if 
       sio.respond_to?(:set_encoding) and
-      sio.encoding != Encoding::ASCII_8BIT
+      sio.external_encoding != Encoding::ASCII_8BIT
     sio
   end
 end
