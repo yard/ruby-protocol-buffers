@@ -16,6 +16,8 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
+  gem.license       = 'BSD'
+
   gem.extra_rdoc_files << "Changelog.md"
 
   gem.add_development_dependency "autotest-standalone"
