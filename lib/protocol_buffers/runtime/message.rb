@@ -262,8 +262,8 @@ module ProtocolBuffers
     end
 
     def self.to_hash(message)
-      return nil unless message
-      return message unless message.is_a?(::ProtocolBuffers::Message)
+      return nil if message == nil
+      return message.is_a?(String) ? message.dup : message unless message.is_a?(::ProtocolBuffers::Message)
       message.fields.select do |tag, field|
         message.value_for_tag?(tag)
       end.inject(Hash.new) do |hash, (tag, field)|
