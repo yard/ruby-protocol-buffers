@@ -12,7 +12,7 @@ module Packed
 
     # enums
     module N
-      include ::ProtocolBuffers::Enum
+      extend ::ProtocolBuffers::Enum
       A = 1
       B = 2
       C = 3

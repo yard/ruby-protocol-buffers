@@ -72,7 +72,7 @@ class FieldDescriptorProto < ::ProtocolBuffers::Message
 
   # enums
   module Type
-    include ::ProtocolBuffers::Enum
+    extend ::ProtocolBuffers::Enum
     TYPE_DOUBLE = 1
     TYPE_FLOAT = 2
     TYPE_INT64 = 3
@@ -94,7 +94,7 @@ class FieldDescriptorProto < ::ProtocolBuffers::Message
   end
 
   module Label
-    include ::ProtocolBuffers::Enum
+    extend ::ProtocolBuffers::Enum
     LABEL_OPTIONAL = 1
     LABEL_REQUIRED = 2
     LABEL_REPEATED = 3
@@ -150,7 +150,7 @@ class FileOptions < ::ProtocolBuffers::Message
 
   # enums
   module OptimizeMode
-    include ::ProtocolBuffers::Enum
+    extend ::ProtocolBuffers::Enum
     SPEED = 1
     CODE_SIZE = 2
     LITE_RUNTIME = 3
@@ -183,7 +183,7 @@ class FieldOptions < ::ProtocolBuffers::Message
 
   # enums
   module CType
-    include ::ProtocolBuffers::Enum
+    extend ::ProtocolBuffers::Enum
     STRING = 0
     CORD = 1
     STRING_PIECE = 2

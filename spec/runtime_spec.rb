@@ -606,7 +606,7 @@ describe ProtocolBuffers, "runtime" do
     module TehUnknown
       class MyResult < ProtocolBuffers::Message
         module E
-          include ProtocolBuffers::Enum
+          extend ProtocolBuffers::Enum
           V1 = 1
           V2 = 2
         end
@@ -621,7 +621,7 @@ describe ProtocolBuffers, "runtime" do
     module TehUnknown2
       class MyResult < ProtocolBuffers::Message
         module E
-          include ProtocolBuffers::Enum
+          extend ProtocolBuffers::Enum
           V1 = 1
         end
         optional E, :field_1, 1
@@ -642,7 +642,7 @@ describe ProtocolBuffers, "runtime" do
     module TehUnknown3
       class MyResult < ProtocolBuffers::Message
         module E
-          include ProtocolBuffers::Enum
+          extend ProtocolBuffers::Enum
           V1 = 1
           V2 = 2
         end
