@@ -104,7 +104,7 @@ module ProtocolBuffers
         klass = Field.const_get("#{type.to_s.capitalize}Field") rescue nil
         raise("Type not found: #{type}") if klass.nil?
         field = klass.new(otype, name, tag, opts)
-      elsif type.is_a?(ProtocolBuffers::Enum)
+      elsif type.ancestors.include?(ProtocolBuffers::Enum)
         field = Field::EnumField.new(type, otype, name, tag, opts)
       elsif type.ancestors.include?(ProtocolBuffers::Message)
         if opts[:group]

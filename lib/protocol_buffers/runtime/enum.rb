@@ -1,33 +1,37 @@
 module ProtocolBuffers
   module Enum
   
-    extend self
-
-    def set_fully_qualified_name(fully_qualified_name)
-      @fully_qualified_name = fully_qualified_name.dup.freeze
+    def self.included(clazz)
+      clazz.extend(ClassMethods)
     end
 
-    def fully_qualified_name
-      @fully_qualified_name
-    end
-
-    def value_to_names_map
-      @value_to_names_map ||= self.constants.inject(Hash.new) do |hash, constant|
-        # values do not have to be unique
-        value = self.const_get(constant)
-        hash[value] ||= Array.new
-        hash[value] << constant
-        hash
+    module ClassMethods
+      def set_fully_qualified_name(fully_qualified_name)
+        @fully_qualified_name = fully_qualified_name.dup.freeze
       end
-      @value_to_names_map
-    end
 
-    def name_to_value_map
-      @name_to_value_map ||= self.constants.inject(Hash.new) do |hash, constant|
-        hash[constant] = self.const_get(constant)
-        hash
+      def fully_qualified_name
+        @fully_qualified_name
       end
-      @name_to_value_map
+
+      def value_to_names_map
+        @value_to_names_map ||= self.constants.inject(Hash.new) do |hash, constant|
+          # values do not have to be unique
+          value = self.const_get(constant)
+          hash[value] ||= Array.new
+          hash[value] << constant
+          hash
+        end
+        @value_to_names_map
+      end
+
+      def name_to_value_map
+        @name_to_value_map ||= self.constants.inject(Hash.new) do |hash, constant|
+          hash[constant] = self.const_get(constant)
+          hash
+        end
+        @name_to_value_map
+      end
     end
   end
 end

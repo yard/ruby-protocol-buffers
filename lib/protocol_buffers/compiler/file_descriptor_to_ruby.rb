@@ -153,7 +153,7 @@ HEADER
 
   def dump_enum(package, enum)
     in_namespace("module", enum.name) do
-      line %{extend ::ProtocolBuffers::Enum}
+      line %{include ::ProtocolBuffers::Enum}
       line
 
       line %{set_fully_qualified_name "#{fully_qualified_name(package, enum.name)}"}
