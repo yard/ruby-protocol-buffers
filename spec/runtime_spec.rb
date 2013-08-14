@@ -735,6 +735,12 @@ describe ProtocolBuffers, "runtime" do
 
   end
 
+  it "correctly handles fully qualified names on Messages" do
+    Simple::Test1.fully_qualified_name.should == "simple.Test1"
+    Simple::Foo.fully_qualified_name.should == "simple.Foo"
+    Simple::Bar.fully_qualified_name.should == nil
+  end
+
   it "has only Enum values as constants" do
     Enums::FooEnum.constants.should == [:ONE, :TWO, :THREE]
     Enums::BarEnum.constants.should == [:FOUR, :FIVE, :SIX]
