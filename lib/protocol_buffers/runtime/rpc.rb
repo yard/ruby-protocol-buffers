@@ -26,14 +26,13 @@ module ProtocolBuffers
     end
 
     def to_s
-      @hash ||= {
+      {
         :name => name,
         :proto_name => proto_name,
         :request_class_name => request_class.name,
         :response_class_name => response_class.name,
         :service_class_name => service_class.name
-      }.freeze
-      @hash.to_s
+      }.to_s
     end
   end
 end

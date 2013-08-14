@@ -832,6 +832,10 @@ describe ProtocolBuffers, "runtime" do
     get_foo_rpc.proto_name.frozen?.should == true
     get_bar_rpc.proto_name.frozen?.should == true
 
+    # make sure to_s is still possible when frozen
+    get_foo_rpc.to_s
+    get_bar_rpc.to_s
+
     Services::FooBarService.rpcs.frozen?.should == true
   end
 
