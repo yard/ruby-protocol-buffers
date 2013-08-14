@@ -2,6 +2,9 @@ module ProtocolBuffers
   module Enum
   
     def self.included(clazz)
+      class << clazz
+        alias constants_original constants
+      end
       clazz.extend(ClassMethods)
     end
 
@@ -31,6 +34,10 @@ module ProtocolBuffers
           hash
         end
         @name_to_value_map
+      end
+
+      def constants
+        constants_original.delete_if { |constant| constant == :ClassMethods }
       end
     end
   end
