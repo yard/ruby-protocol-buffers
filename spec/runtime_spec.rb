@@ -11,12 +11,12 @@ require 'protocol_buffers/compiler'
 describe ProtocolBuffers, "runtime" do
   before(:each) do
     # clear our namespaces
-    %w( Simple Featureful Foo Packed TehUnknown TehUnknown2 TehUnknown3 Enums).each do |klass|
+    %w( Simple Featureful Foo Packed TehUnknown TehUnknown2 TehUnknown3 Enums A C).each do |klass|
       Object.send(:remove_const, klass.to_sym) if Object.const_defined?(klass.to_sym)
     end
 
     # load test protos
-    %w( simple featureful packed enums).each do |proto|
+    %w( simple featureful packed enums no_package).each do |proto|
       load File.join(File.dirname(__FILE__), "proto_files", "#{proto}.pb.rb")
     end
   end
@@ -739,6 +739,12 @@ describe ProtocolBuffers, "runtime" do
     Simple::Test1.fully_qualified_name.should == "simple.Test1"
     Simple::Foo.fully_qualified_name.should == "simple.Foo"
     Simple::Bar.fully_qualified_name.should == nil
+  end
+
+  it "correctly handles fully qualified names on Messages with no package" do
+    A.fully_qualified_name.should == "A"
+    A::B.fully_qualified_name.should == "A.B"
+    C.fully_qualified_name.should == nil
   end
 
   it "has only Enum values as constants" do
