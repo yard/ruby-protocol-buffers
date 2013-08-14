@@ -748,10 +748,10 @@ describe ProtocolBuffers, "runtime" do
   end
 
   it "has only Enum values as constants" do
-    Enums::FooEnum.constants.should == [:ONE, :TWO, :THREE]
-    Enums::BarEnum.constants.should == [:FOUR, :FIVE, :SIX]
-    Enums::FooMessage::NestedFooEnum.constants.should == [:SEVEN, :EIGHT]
-    Enums::FooMessage::NestedBarEnum.constants.should == [:NINE, :TEN]
+    Enums::FooEnum.constants.should =~ [:ONE, :TWO, :THREE]
+    Enums::BarEnum.constants.should =~ [:FOUR, :FIVE, :SIX]
+    Enums::FooMessage::NestedFooEnum.constants.should =~ [:SEVEN, :EIGHT]
+    Enums::FooMessage::NestedBarEnum.constants.should =~ [:NINE, :TEN]
   end
 
   it "correctly populates the maps between name and values for Enums" do
