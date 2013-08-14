@@ -20,7 +20,7 @@ module ProtocolBuffers
     def self.rpc(name, proto_name, request_type, response_type)
       @rpcs ||= Array.new
       @rpcs = @rpcs.dup
-      @rpcs << Rpc.new(name.to_sym, proto_name, request_type, response_type, self)
+      @rpcs << Rpc.new(name.to_sym, proto_name, request_type, response_type, self).freeze
       @rpcs.freeze
     end
   end

@@ -40,4 +40,11 @@ module Services
     rpc :get_foo, "GetFoo", ::Services::FooRequest, ::Services::FooResponse
     rpc :get_bar, "GetBar", ::Services::BarRequest, ::Services::BarResponse
   end
+  class NoNameFooBarService < ::ProtocolBuffers::Service
+    # purposefully removing qualified name to make sure that nothing breaks
+    #set_fully_qualified_name "services.NoNameFooBarService"
+
+    rpc :get_foo, "GetFoo", ::Services::FooRequest, ::Services::FooResponse
+    rpc :get_bar, "GetBar", ::Services::BarRequest, ::Services::BarResponse
+  end
 end

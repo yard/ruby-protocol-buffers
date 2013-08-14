@@ -11,12 +11,12 @@ require 'protocol_buffers/compiler'
 describe ProtocolBuffers, "runtime" do
   before(:each) do
     # clear our namespaces
-    %w( Simple Featureful Foo Packed TehUnknown TehUnknown2 TehUnknown3 Enums A C).each do |klass|
+    %w( Simple Featureful Foo Packed TehUnknown TehUnknown2 TehUnknown3 Enums A C Services).each do |klass|
       Object.send(:remove_const, klass.to_sym) if Object.const_defined?(klass.to_sym)
     end
 
     # load test protos
-    %w( simple featureful packed enums no_package).each do |proto|
+    %w( simple featureful packed enums no_package services).each do |proto|
       load File.join(File.dirname(__FILE__), "proto_files", "#{proto}.pb.rb")
     end
   end
@@ -800,4 +800,49 @@ describe ProtocolBuffers, "runtime" do
     Enums::FooMessage::NestedBarEnum.fully_qualified_name.should == nil
   end
 
+  it "correctly handles service definitions" do
+    Services::FooBarService.rpcs.size.should == 2
+    get_foo_rpc = Services::FooBarService.rpcs[0]
+    get_bar_rpc = Services::FooBarService.rpcs[1]
+
+    get_foo_rpc.name.should == :get_foo
+    get_foo_rpc.proto_name.should == "GetFoo"
+    get_foo_rpc.request_class.should == Services::FooRequest
+    get_foo_rpc.response_class.should == Services::FooResponse
+    get_foo_rpc.service_class.should == Services::FooBarService
+
+    get_bar_rpc.name.should == :get_bar
+    get_bar_rpc.proto_name.should == "GetBar"
+    get_bar_rpc.request_class.should == Services::BarRequest
+    get_bar_rpc.response_class.should == Services::BarResponse
+    get_bar_rpc.service_class.should == Services::FooBarService
+  end
+
+  it "correctly handles == for Rpcs" do
+    Services::FooBarService.rpcs.size.should == 2
+    get_foo_rpc = Services::FooBarService.rpcs[0]
+    get_bar_rpc = Services::FooBarService.rpcs[1]
+
+    get_foo_rpc.should == get_foo_rpc
+    get_bar_rpc.should == get_bar_rpc
+    get_foo_rpc.should_not == get_bar_rpc
+  end
+
+  it "correctly freezes rpcs" do
+    Services::FooBarService.rpcs.size.should == 2
+    get_foo_rpc = Services::FooBarService.rpcs[0]
+    get_bar_rpc = Services::FooBarService.rpcs[1]
+
+    get_foo_rpc.frozen?.should == true
+    get_bar_rpc.frozen?.should == true
+    get_foo_rpc.proto_name.frozen?.should == true
+    get_bar_rpc.proto_name.frozen?.should == true
+
+    Services::FooBarService.rpcs.frozen?.should == true
+  end
+
+  it "correctly handles fully qualified names on Services" do
+    Services::FooBarService.fully_qualified_name.should == "services.FooBarService"
+    Services::NoNameFooBarService.fully_qualified_name.should == nil
+  end
 end
