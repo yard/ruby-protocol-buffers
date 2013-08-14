@@ -738,6 +738,8 @@ describe ProtocolBuffers, "runtime" do
   it "has only Enum values as constants" do
     Enums::FooEnum.constants.should == [:ONE, :TWO, :THREE]
     Enums::BarEnum.constants.should == [:FOUR, :FIVE, :SIX]
+    Enums::FooMessage::NestedFooEnum.constants.should == [:SEVEN, :EIGHT]
+    Enums::FooMessage::NestedBarEnum.constants.should == [:NINE, :TEN]
   end
 
   it "correctly populates the maps between name and values for Enums" do
@@ -761,10 +763,29 @@ describe ProtocolBuffers, "runtime" do
       :FIVE => 5,
       :SIX => 6
     }
+    Enums::FooMessage::NestedFooEnum.value_to_names_map.should == {
+      7 => [:SEVEN],
+      8 => [:EIGHT],
+    }
+    Enums::FooMessage::NestedBarEnum.value_to_names_map.should == {
+      9 => [:NINE],
+      10 => [:TEN],
+    }
+    Enums::FooMessage::NestedFooEnum.name_to_value_map.should == {
+      :SEVEN => 7,
+      :EIGHT => 8,
+    }
+    Enums::FooMessage::NestedBarEnum.name_to_value_map.should == {
+      :NINE => 9,
+      :TEN => 10,
+    }
   end
 
   it "correctly handles fully qualified names on Enums" do
     Enums::FooEnum.fully_qualified_name.should == "enums.FooEnum"
     Enums::BarEnum.fully_qualified_name.should == nil
+    Enums::FooMessage::NestedFooEnum.fully_qualified_name.should == "enums.FooMessage.NestedFooEnum"
+    Enums::FooMessage::NestedBarEnum.fully_qualified_name.should == nil
   end
+
 end
