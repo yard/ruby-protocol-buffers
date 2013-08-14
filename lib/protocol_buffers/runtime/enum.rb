@@ -1,8 +1,11 @@
 module ProtocolBuffers
   module Enum
-  
-    extend self
+    def self.included(clazz)
+      clazz.extend(EnumClassMethods)
+    end
+  end
 
+  module EnumClassMethods
     def set_fully_qualified_name(fully_qualified_name)
       @fully_qualified_name = fully_qualified_name.dup.freeze
     end

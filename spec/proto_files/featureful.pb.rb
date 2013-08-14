@@ -11,7 +11,7 @@ module Featureful
 
   # enums
   module MainPayloads
-    extend ::ProtocolBuffers::Enum
+    include ::ProtocolBuffers::Enum
     P1 = 2
     P2 = 3
     P3 = 4
@@ -31,7 +31,7 @@ module Featureful
 
       # enums
       module Payloads
-        extend ::ProtocolBuffers::Enum
+        include ::ProtocolBuffers::Enum
         P1 = 0
         P2 = 1
       end
