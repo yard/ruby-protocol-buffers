@@ -735,8 +735,36 @@ describe ProtocolBuffers, "runtime" do
 
   end
 
-  it "has only enum values as constants" do
+  it "has only Enum values as constants" do
     Enums::FooEnum.constants.should == [:ONE, :TWO, :THREE]
     Enums::BarEnum.constants.should == [:FOUR, :FIVE, :SIX]
+  end
+
+  it "correctly populates the maps between name and values for Enums" do
+    Enums::FooEnum.value_to_names_map.should == {
+      1 => [:ONE],
+      2 => [:TWO],
+      3 => [:THREE]
+    }
+    Enums::BarEnum.value_to_names_map.should == {
+      4 => [:FOUR],
+      5 => [:FIVE],
+      6 => [:SIX]
+    }
+    Enums::FooEnum.name_to_value_map.should == {
+      :ONE => 1,
+      :TWO => 2,
+      :THREE => 3
+    }
+    Enums::BarEnum.name_to_value_map.should == {
+      :FOUR => 4,
+      :FIVE => 5,
+      :SIX => 6
+    }
+  end
+
+  it "correctly handles fully qualified names on Enums" do
+    Enums::FooEnum.fully_qualified_name.should == "enums.FooEnum"
+    Enums::BarEnum.fully_qualified_name.should == nil
   end
 end
