@@ -11,12 +11,12 @@ require 'protocol_buffers/compiler'
 describe ProtocolBuffers, "runtime" do
   before(:each) do
     # clear our namespaces
-    %w( Simple Featureful Foo Packed TehUnknown TehUnknown2 TehUnknown3 ).each do |klass|
+    %w( Simple Featureful Foo Packed TehUnknown TehUnknown2 TehUnknown3 Enums).each do |klass|
       Object.send(:remove_const, klass.to_sym) if Object.const_defined?(klass.to_sym)
     end
 
     # load test protos
-    %w( simple featureful packed ).each do |proto|
+    %w( simple featureful packed enums).each do |proto|
       load File.join(File.dirname(__FILE__), "proto_files", "#{proto}.pb.rb")
     end
   end
@@ -732,5 +732,11 @@ describe ProtocolBuffers, "runtime" do
         :subgroup => []
       }
     }
+
+  end
+
+  it "has only enum values as constants" do
+    Enums::FooEnum.constants.should == [:ONE, :TWO, :THREE]
+    Enums::BarEnum.constants.should == [:FOUR, :FIVE, :SIX]
   end
 end

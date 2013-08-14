@@ -1,12 +1,12 @@
 package enums;
 
-enum Foo {
+enum FooEnum {
   ONE = 1;
   TWO = 2;
   THREE = 3;
 }
 
-enum Bar {
+enum BarEnum {
   FOUR = 4;
   FIVE = 5;
   SIX = 6;

@@ -7,21 +7,21 @@ module Enums
   # forward declarations
 
   # enums
-  module Foo
+  module FooEnum
     include ::ProtocolBuffers::Enum
 
-    set_fully_qualified_name "enums.Foo"
+    set_fully_qualified_name "enums.FooEnum"
 
     ONE = 1
     TWO = 2
     THREE = 3
   end
 
-  module Bar
+  module BarEnum
     include ::ProtocolBuffers::Enum
 
     # purposfully removing qualified name to make sure nothing breaks
-    #set_fully_qualified_name "enums.Bar"
+    #set_fully_qualified_name "enums.BarEnum"
 
     FOUR = 4
     FIVE = 5
