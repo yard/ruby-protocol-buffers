@@ -19,7 +19,7 @@ module ProtocolBuffers
         # values do not have to be unique
         value = self.const_get(constant)
         hash[value] ||= Array.new
-        hash[value] << constant
+        hash[value] << constant.to_sym
         hash
       end
       @value_to_names_map
@@ -27,7 +27,7 @@ module ProtocolBuffers
 
     def name_to_value_map
       @name_to_value_map ||= self.constants.inject(Hash.new) do |hash, constant|
-        hash[constant] = self.const_get(constant)
+        hash[constant.to_sym] = self.const_get(constant)
         hash
       end
       @name_to_value_map
