@@ -21,10 +21,6 @@ module ProtocolBuffers
 
     alias == eql?
 
-    def hash
-      name.hash ^ proto_name.hash ^ request_class.hash ^ response_class.hash ^ service_class.hash
-    end
-
     def to_s
       {
         :name => name,
