@@ -10,17 +10,6 @@ module ProtocolBuffers
       @service_class = service_class
     end
 
-    def eql?(other)
-      self.class.equal?(other.class) &&\
-        name == other.name &&\
-        proto_name == other.proto_name &&\
-        request_class == other.request_class &&\
-        response_class == other.response_class &&\
-        service_class == other.service_class
-    end
-
-    alias == eql?
-
     def to_s
       {
         :name => name,
