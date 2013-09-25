@@ -103,6 +103,7 @@ def has_compiler?
 end
 
 RSpec.configure do |config|
+  config.backtrace_exclusion_patterns = []
   config.after(:each) do
     # clear our namespaces
     Object.send(:remove_const, :Simple) if defined?(Simple)
