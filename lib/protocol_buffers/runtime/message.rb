@@ -338,8 +338,19 @@ module ProtocolBuffers
       end
       return true
     end
-
-    alias eql? ==
+    
+    # Comparison by class and field values.
+    def eql?(obj)
+      return false unless obj.is_a?(self.class)
+      fields.each do |tag, _|
+        if value_for_tag?(tag)
+          return false unless (obj.value_for_tag?(tag) && value_for_tag(tag).eql?(obj.value_for_tag(tag)))
+        else
+          return false if obj.value_for_tag?(tag)
+        end
+      end
+      return true
+    end
 
     def hash
       hash_code = 0
