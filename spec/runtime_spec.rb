@@ -742,6 +742,107 @@ describe ProtocolBuffers, "runtime" do
 
   end
 
+  it "correctly handles ==, eql? and hash" do
+    f1 = Featureful::A.new
+    f1.i1 = [1, 2, 3]
+    f1.i3 = 4
+    sub111 = Featureful::A::Sub.new
+    sub111.payload = "sub11payload"
+    sub111.payload_type = Featureful::A::Sub::Payloads::P1
+    sub111.subsub1.subsub_payload = "sub11subsubpayload"
+    sub112 = Featureful::A::Sub.new
+    sub112.payload = "sub12payload"
+    sub112.payload_type = Featureful::A::Sub::Payloads::P2
+    sub112.subsub1.subsub_payload = "sub12subsubpayload"
+    f1.sub1 = [sub111, sub112]
+    f1.sub3.payload = ""
+    f1.sub3.payload_type = Featureful::A::Sub::Payloads::P1
+    f1.sub3.subsub1.subsub_payload = "sub3subsubpayload"
+    f1.group3.i1 = 1
+
+    f2 = Featureful::A.new
+    f2.i1 = [1, 2, 3]
+    f2.i3 = 4
+    sub211 = Featureful::A::Sub.new
+    sub211.payload = "sub11payload"
+    sub211.payload_type = Featureful::A::Sub::Payloads::P1
+    sub211.subsub1.subsub_payload = "sub11subsubpayload"
+    sub212 = Featureful::A::Sub.new
+    sub212.payload = "sub12payload"
+    sub212.payload_type = Featureful::A::Sub::Payloads::P2
+    sub212.subsub1.subsub_payload = "sub12subsubpayload"
+    f2.sub1 = [sub211, sub212]
+    f2.sub3.payload = ""
+    f2.sub3.payload_type = Featureful::A::Sub::Payloads::P1
+    f2.sub3.subsub1.subsub_payload = "sub3subsubpayload"
+    f2.group3.i1 = 1
+
+    # different because subsub1.sub_payload different
+    f3 = Featureful::A.new
+    f3.i1 = [1, 2, 3]
+    f3.i3 = 4
+    sub311 = Featureful::A::Sub.new
+    sub311.payload = "sub11payload"
+    sub311.payload_type = Featureful::A::Sub::Payloads::P1
+    sub311.subsub1.subsub_payload = "sub11subsubpayload"
+    sub312 = Featureful::A::Sub.new
+    sub312.payload = "sub12payload"
+    sub312.payload_type = Featureful::A::Sub::Payloads::P2
+    sub312.subsub1.subsub_payload = "sub12subsubpayload_DIFFERENT"
+    f3.sub1 = [sub311, sub312]
+    f3.sub3.payload = ""
+    f3.sub3.payload_type = Featureful::A::Sub::Payloads::P1
+    f3.sub3.subsub1.subsub_payload = "sub3subsubpayload"
+    f3.group3.i1 = 1
+
+    # different because sub3.payload not set
+    f4 = Featureful::A.new
+    f4.i1 = [1, 2, 3]
+    f4.i3 = 4
+    sub411 = Featureful::A::Sub.new
+    sub411.payload = "sub11payload"
+    sub411.payload_type = Featureful::A::Sub::Payloads::P1
+    sub411.subsub1.subsub_payload = "sub11subsubpayload"
+    sub412 = Featureful::A::Sub.new
+    sub412.payload = "sub12payload"
+    sub412.payload_type = Featureful::A::Sub::Payloads::P2
+    sub412.subsub1.subsub_payload = "sub12subsubpayload"
+    f4.sub1 = [sub411, sub412]
+    f4.sub3.payload_type = Featureful::A::Sub::Payloads::P1
+    f4.sub3.subsub1.subsub_payload = "sub3subsubpayload"
+    f4.group3.i1 = 1
+
+    f1.should == f2
+    f1.should_not == f3
+    f1.should_not == f4
+    f2.should == f1
+    f2.should_not == f3
+    f2.should_not == f4
+    f3.should_not == f1
+    f3.should_not == f2
+    f3.should_not == f4
+
+    f1.eql?(f2).should == true
+    f1.eql?(f3).should_not == true
+    f1.eql?(f4).should_not == true
+    f2.eql?(f1).should == true
+    f2.eql?(f3).should_not == true
+    f2.eql?(f4).should_not == true
+    f3.eql?(f1).should_not == true
+    f3.eql?(f2).should_not == true
+    f3.eql?(f4).should_not == true
+
+    f1.hash.should == f2.hash
+    f1.hash.should_not == f3.hash
+    f1.hash.should_not == f4.hash
+    f2.hash.should == f1.hash
+    f2.hash.should_not == f3.hash
+    f2.hash.should_not == f4.hash
+    f3.hash.should_not == f1.hash
+    f3.hash.should_not == f2.hash
+    f3.hash.should_not == f4.hash
+  end
+
   it "correctly handles fully qualified names on Messages" do
     Simple::Test1.fully_qualified_name.should == "simple.Test1"
     Simple::Foo.fully_qualified_name.should == "simple.Foo"
