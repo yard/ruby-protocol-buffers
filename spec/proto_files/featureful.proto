@@ -73,3 +73,21 @@ message ABitOfEverything {
   optional string string_field = 14 [default = "zomgkittenz"];
   optional bytes bytes_field = 15;
 };
+
+message C {
+  optional D d = 1;
+  repeated E e = 2;
+}
+
+message D {
+  repeated F f = 1;
+  optional F f2 = 2;
+}
+
+message E {
+  optional D d = 1;
+}
+
+message F {
+  optional string s = 1;
+}

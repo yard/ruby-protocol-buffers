@@ -159,6 +159,10 @@ module ProtocolBuffers
                 #{name}.clear
                 __value.each { |i| @#{name}.push i }
               end
+              if @parent_for_notify
+                @parent_for_notify.default_changed(@tag_for_notify)
+                @parent_for_notify = @tag_for_notify = nil
+              end
             end
           end
         EOF
