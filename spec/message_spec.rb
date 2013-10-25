@@ -18,7 +18,7 @@ describe ProtocolBuffers, "message" do
     end
   end
 
-  it "1" do
+  it "correctly handles value_for_tag? when fields are set in the constructor" do
     a = Featureful::A.new(
       :i2 => 1,
       :sub2 => Featureful::A::Sub.new(
@@ -30,7 +30,7 @@ describe ProtocolBuffers, "message" do
     a.value_for_tag?(5).should == true
   end
 
-  it "2" do
+  it "correctly handles value_for_tag? when a MessageField is set to the same object in two locations within the same proto and set in the constructor" do
     d = Featureful::D.new(
       :f => [1, 2, 3].map do |num|
         Featureful::F.new(
@@ -50,7 +50,7 @@ describe ProtocolBuffers, "message" do
     c.value_for_tag?(1).should == true
   end
 
-  it "3" do
+  it "correctly handles value_for_tag? when a Messagefield is set to the same object in two locations within the same proto and set outside of the constructor" do
     d = Featureful::D.new
     d.f = [1, 2, 3].map do |num|
       Featureful::F.new(
@@ -68,7 +68,7 @@ describe ProtocolBuffers, "message" do
     c.value_for_tag?(1).should == true
   end
 
-  it "4" do
+  it "correctly handles value_for_tag? when a field is accessed and then modified and this field is a MessageField with only a repeated field accessed" do
     c = Featureful::C.new
     c_d = c.d
     c_d.f = [1, 2, 3].map do |num|
@@ -91,7 +91,7 @@ describe ProtocolBuffers, "message" do
     c.value_for_tag?(1).should == true
   end
 
-  it "5" do
+  it "correctly handles value_for_tag? when a field is accessed and then modified and this field is a MessageField with a repeated and optional field accessed" do
     c = Featureful::C.new
     c_d = c.d
     c_d.f = [1, 2, 3].map do |num|
