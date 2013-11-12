@@ -426,6 +426,47 @@ module ProtocolBuffers
       @set_fields[tag] || false
     end
 
+    def get_expected_field(*nested_field_names)
+      if nested_field_names.size == 1
+        field_name = nested_field_names.first
+        field = self.class.field_for_name(field_name)
+        raise ArgumentError.new unless field
+        raise ArgumentError.new unless self.value_for_tag?(field.tag)
+        return self.value_for_tag(field.tag)
+      end
+      last_proto = nested_field_names[0..-2].inject(self) do |sub_proto, ifield_name|
+        sub_field = sub_proto.class.field_for_name(ifield_name)
+        raise ArgumentError.new unless sub_field
+        raise ArgumentError.new unless sub_field.is_a?(ProtocolBuffers::Field::MessageField)
+        raise ArgumentError.new unless sub_proto.value_for_tag?(sub_field.tag)
+        sub_proto.value_for_tag(sub_field.tag)
+      end
+      last_field_name = nested_field_names.last
+      last_field = last_proto.class.field_for_name(last_field_name)
+      raise ArgumentError.new unless last_field
+      raise ArgumentError.new unless last_proto.value_for_tag?(last_field.tag)
+      last_proto.value_for_tag(last_field.tag)
+    end
+
+    def get_optional_field(*nested_field_names)
+      if nested_field_names.size == 1
+        field_name = nested_field_names.first
+        field = self.class.field_for_name(field_name)
+        raise ArgumentError.new unless field
+        return self.value_for_tag?(field.tag) ? self.value_for_tag(field.tag) : nil
+      end
+      last_proto = nested_field_names[0..-2].inject(self) do |sub_proto, ifield_name|
+        sub_field = sub_proto.class.field_for_name(ifield_name)
+        raise ArgumentError.new unless sub_field
+        raise ArgumentError.new unless sub_field.is_a?(ProtocolBuffers::Field::MessageField)
+        return nil unless sub_proto.value_for_tag?(sub_field.tag)
+        sub_proto.value_for_tag(sub_field.tag)
+      end
+      last_field_name = nested_field_names.last
+      last_field = last_proto.class.field_for_name(last_field_name)
+      last_proto.value_for_tag?(last_field.tag) ? last_proto.value_for_tag(last_field.tag) : nil
+    end
+
     def inspect
       ret = ProtocolBuffers.bin_sio
       ret << "#<#{self.class.name}"
