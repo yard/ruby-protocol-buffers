@@ -426,7 +426,8 @@ module ProtocolBuffers
       @set_fields[tag] || false
     end
 
-    def get_expected_field(*nested_field_names)
+    # Gets the field, throwing ArgumentError if not set
+    def get(*nested_field_names)
       if nested_field_names.size == 1
         field_name = nested_field_names.first
         field = self.class.field_for_name(field_name)
@@ -448,7 +449,8 @@ module ProtocolBuffers
       last_proto.value_for_tag(last_field.tag)
     end
 
-    def get_optional_field(*nested_field_names)
+    # Gets the field, returning nil if not set
+    def get!(*nested_field_names)
       if nested_field_names.size == 1
         field_name = nested_field_names.first
         field = self.class.field_for_name(field_name)

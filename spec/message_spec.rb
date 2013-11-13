@@ -117,25 +117,25 @@ describe ProtocolBuffers, "message" do
     c.value_for_tag?(1).should == true
   end
 
-  it "correctly handles get_expected_field" do
+  it "correctly handles get" do
     f = Featureful::A.new
     f.i3 = 4
     f.sub3.subsub1.subsub_payload = "sub3subsubpayload"
 
-    f.get_expected_field(:sub3, :subsub1, :subsub_payload).should == "sub3subsubpayload"
-    f.get_expected_field(:i3).should == 4
-    proc { f.get_expected_field(:i2) }.should raise_error(ArgumentError)
-    proc { f.get_expected_field(:sub2) }.should raise_error(ArgumentError)
+    f.get(:sub3, :subsub1, :subsub_payload).should == "sub3subsubpayload"
+    f.get(:i3).should == 4
+    proc { f.get(:i2) }.should raise_error(ArgumentError)
+    proc { f.get(:sub2) }.should raise_error(ArgumentError)
   end
 
-  it "correctly handles get_optional_field" do
+  it "correctly handles get!" do
     f = Featureful::A.new
     f.i3 = 4
     f.sub3.subsub1.subsub_payload = "sub3subsubpayload"
 
-    f.get_optional_field(:sub3, :subsub1, :subsub_payload).should == "sub3subsubpayload"
-    f.get_optional_field(:i3).should == 4
-    f.get_optional_field(:i2).should == nil
-    f.get_optional_field(:sub2).should == nil
+    f.get!(:sub3, :subsub1, :subsub_payload).should == "sub3subsubpayload"
+    f.get!(:i3).should == 4
+    f.get!(:i2).should == nil
+    f.get!(:sub2).should == nil
   end
 end
