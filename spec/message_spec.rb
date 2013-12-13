@@ -124,8 +124,8 @@ describe ProtocolBuffers, "message" do
 
     f.get(:sub3, :subsub1, :subsub_payload).should == "sub3subsubpayload"
     f.get(:i3).should == 4
-    proc { f.get(:i2) }.should raise_error(ArgumentError)
-    proc { f.get(:sub2) }.should raise_error(ArgumentError)
+    f.get(:i2).should == nil
+    f.get(:sub2).should == nil
   end
 
   it "correctly handles get!" do
@@ -135,7 +135,7 @@ describe ProtocolBuffers, "message" do
 
     f.get!(:sub3, :subsub1, :subsub_payload).should == "sub3subsubpayload"
     f.get!(:i3).should == 4
-    f.get!(:i2).should == nil
-    f.get!(:sub2).should == nil
+    proc { f.get!(:i2) }.should raise_error(ArgumentError)
+    proc { f.get!(:sub2) }.should raise_error(ArgumentError)
   end
 end

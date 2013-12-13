@@ -426,47 +426,39 @@ module ProtocolBuffers
       @set_fields[tag] || false
     end
 
-    # Gets the field, throwing ArgumentError if not set
-    def get(*nested_field_names)
+    # Gets the field, returning nil if not set
+    # If a block is given, this block is called and it's
+    # return value returned if the value is not set
+    def get(*nested_field_names, &b)
       if nested_field_names.size == 1
         field_name = nested_field_names.first
         field = self.class.field_for_name(field_name)
         raise ArgumentError.new unless field
-        raise ArgumentError.new unless self.value_for_tag?(field.tag)
+        unless self.value_for_tag?(field.tag)
+          return b ? b.call : nil
+        end
         return self.value_for_tag(field.tag)
       end
       last_proto = nested_field_names[0..-2].inject(self) do |sub_proto, ifield_name|
         sub_field = sub_proto.class.field_for_name(ifield_name)
         raise ArgumentError.new unless sub_field
         raise ArgumentError.new unless sub_field.is_a?(ProtocolBuffers::Field::MessageField)
-        raise ArgumentError.new unless sub_proto.value_for_tag?(sub_field.tag)
+        unless sub_proto.value_for_tag?(sub_field.tag)
+          return b ? b.call : nil
+        end
         sub_proto.value_for_tag(sub_field.tag)
       end
       last_field_name = nested_field_names.last
       last_field = last_proto.class.field_for_name(last_field_name)
-      raise ArgumentError.new unless last_field
-      raise ArgumentError.new unless last_proto.value_for_tag?(last_field.tag)
+      unless last_proto.value_for_tag?(last_field.tag)
+        return b ? b.call : nil
+      end
       last_proto.value_for_tag(last_field.tag)
     end
 
-    # Gets the field, returning nil if not set
+    # Gets the field, throwing ArgumentError if not set
     def get!(*nested_field_names)
-      if nested_field_names.size == 1
-        field_name = nested_field_names.first
-        field = self.class.field_for_name(field_name)
-        raise ArgumentError.new unless field
-        return self.value_for_tag?(field.tag) ? self.value_for_tag(field.tag) : nil
-      end
-      last_proto = nested_field_names[0..-2].inject(self) do |sub_proto, ifield_name|
-        sub_field = sub_proto.class.field_for_name(ifield_name)
-        raise ArgumentError.new unless sub_field
-        raise ArgumentError.new unless sub_field.is_a?(ProtocolBuffers::Field::MessageField)
-        return nil unless sub_proto.value_for_tag?(sub_field.tag)
-        sub_proto.value_for_tag(sub_field.tag)
-      end
-      last_field_name = nested_field_names.last
-      last_field = last_proto.class.field_for_name(last_field_name)
-      last_proto.value_for_tag?(last_field.tag) ? last_proto.value_for_tag(last_field.tag) : nil
+      get(*nested_field_names) { raise ArgumentError.new("#{nested_field_names} is not set") }
     end
 
     def inspect
