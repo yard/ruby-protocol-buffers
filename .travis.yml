@@ -9,8 +9,7 @@ rvm:
   - "2.0.0"
   - jruby-18mode # JRuby in 1.8 mode
   - jruby-19mode # JRuby in 1.9 mode
-  - rbx-18mode
-  - rbx-19mode
+  - rbx-2.1.1
 matrix:
   exclude:
     # can't use the varint extension in jruby runs
@@ -19,5 +18,5 @@ matrix:
     - rvm: jruby-19mode
       gemfile: Gemfile
   allow_failures:
-    # https://github.com/rubinius/rubinius/issues/2215
-    - rvm: rbx-19mode
+    - rvm: rbx-2.1.1
+
