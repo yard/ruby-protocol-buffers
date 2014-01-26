@@ -26,5 +26,6 @@ rescue => error
   ]
   $stderr.puts response.error
 else
-  print response.to_s
+  $stdout.binmode
+  $stdout.print response.to_s
 end
