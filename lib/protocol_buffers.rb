@@ -8,6 +8,14 @@ module ProtocolBuffers
       sio.external_encoding != Encoding::BINARY
     sio
   end
+
+  def self.utf8_sio(*args)
+    sio = StringIO.new(*args)
+    sio.set_encoding('utf-8') if
+      sio.respond_to?(:set_encoding) and
+      sio.external_encoding != Encoding::UTF_8
+    sio
+  end
 end
 
 require 'protocol_buffers/version'

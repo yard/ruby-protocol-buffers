@@ -242,6 +242,10 @@ module ProtocolBuffers
       value
     end
 
+    def text_format(io, value, options = nil)
+      io.write value.to_s
+    end
+
     module WireFormats
       module LENGTH_DELIMITED
         def wire_type
@@ -304,6 +308,11 @@ module ProtocolBuffers
       def deserialize(value)
         value.read
       end
+
+      def text_format(io, value, options = nil)
+        value = value.unpack("C*").map { |b| "\\x%02x" % b }.join(nil)
+        io.write "\"#{value}\""
+      end
     end
 
     class StringField < BytesField
@@ -330,6 +339,14 @@ module ProtocolBuffers
           read_value.force_encoding(Encoding::UTF_8)
         else
           read_value
+        end
+      end
+
+      def text_format(io, value, options = nil)
+        if HAS_ENCODING
+          io.write value.dup.force_encoding(Encoding::ASCII_8BIT).dump
+        else
+          io.write value.dump
         end
       end
     end
@@ -583,8 +600,17 @@ module ProtocolBuffers
         @opts[:default] || @valid_values.first
       end
 
+      def value_from_name(name)
+        @proxy_enum.name_to_value_map[name.to_sym]
+      end
+
       def inspect_value(value)
         "#{@value_to_name[value]}(#{value})"
+      end
+
+      def text_format(io, value, options = nil)
+        formatted = @value_to_name[value] || value.to_s
+        io.write formatted 
       end
     end
 
@@ -613,6 +639,24 @@ module ProtocolBuffers
 
       def deserialize(io)
         @proxy_class.parse(io)
+      end
+
+      def text_format(io, value, options = nil)
+        options = options.dup
+        options[:nest] ||= 0
+        if options[:short]
+          indent = ""
+          newline = " "
+        else
+          indent = "  " * options[:nest]
+          newline = "\n"
+        end
+        options[:nest] += 1
+
+        io.write "{#{newline}"
+        value.text_format(io, options)
+        io.write " " if options[:short]
+        io.write "#{indent}}"
       end
     end
 

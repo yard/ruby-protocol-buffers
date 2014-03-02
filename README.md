@@ -142,6 +142,7 @@ end
 * passing on unknown fields when re-serializing a message
 * groups
 * RPC stubbing
+* formatting to and parsing from text format
 
 ### Unsupported Features
 
