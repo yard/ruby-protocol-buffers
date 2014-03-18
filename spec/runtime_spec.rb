@@ -278,7 +278,7 @@ describe ProtocolBuffers, "runtime" do
     a1 = Featureful::A.new
     proc do
       a1.sub1 << Featureful::A::Sub.new
-    end.should_not raise_error(TypeError)
+    end.should_not raise_error
 
     a1 = Featureful::A.new
     proc do
