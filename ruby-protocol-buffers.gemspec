@@ -24,7 +24,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "autotest-growl"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rake-compiler"
-  gem.add_development_dependency "simplecov"
+  gem.add_development_dependency "simplecov", "0.7.1" # pinned for 1.8 compat
   gem.add_development_dependency "rspec", "~> 2.5"
   gem.add_development_dependency "yard"
 end
