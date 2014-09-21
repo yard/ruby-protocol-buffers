@@ -633,7 +633,7 @@ describe ProtocolBuffers, "runtime" do
       res2 = TehUnknown2::MyResult.parse(serialized)
     end.should_not raise_error()
 
-    res2.value_for_tag?(1).should be_false
+    res2.value_for_tag?(1).should be false
     res2.unknown_field_count.should == 1
 
     serialized2 = res2.to_s
