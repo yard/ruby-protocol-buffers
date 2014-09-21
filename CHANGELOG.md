@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 ### Removed
 - Dropped Ruby 1.8.7 support.
 
-# 1.5.1 - 2013-10-28
+## 1.5.1 - 2013-10-28
 ### Added
 - Better value semantics for `Message`, including `==`, `eql?`, and `hash`.
 
