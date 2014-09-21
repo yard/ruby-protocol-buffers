@@ -26,7 +26,7 @@ module ProtocolBuffers
             # encode packed field in a LENGTH_DELIMITED wire
             wire_type = 2
             tag = (field.tag << 3) | wire_type
-            buf = StringIO.new
+            buf = ProtocolBuffers.bin_sio
             value.each { |i| serialize_field_value(buf, field.wire_type, field.serialize(i)) }
             Varint.encode(io, tag)
             Varint.encode(io, buf.size)
