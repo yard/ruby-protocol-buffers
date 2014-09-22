@@ -1,10 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.6.0 - 2014-09-22
 ### Added
 - More metaprogramming support via `get_expected_field`, `get_optional_field`.
 - Ruby 2.1 support.
+- Protocol Buffers text format support.
 
 ### Changed
 - Fixed Windows line ending bug in encoder.
