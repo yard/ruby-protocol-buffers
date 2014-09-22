@@ -2,6 +2,8 @@ require 'stringio'
 require 'protocol_buffers/runtime/field'
 require 'protocol_buffers/runtime/encoder'
 require 'protocol_buffers/runtime/decoder'
+require 'protocol_buffers/runtime/text_formatter'
+require 'protocol_buffers/runtime/text_parser'
 
 module ProtocolBuffers
 
@@ -257,6 +259,19 @@ module ProtocolBuffers
     end
     alias_method :to_s, :serialize_to_string
 
+    # Format this message into the given IO stream using the text format of Protocol Buffers.
+    def text_format(io, options = nil)
+      formatter = TextFormatter.new(options)
+      formatter.format(io, self)
+    end
+
+    # Format this message into a text and return it.
+    def text_format_to_string(options = nil)
+      sio = ProtocolBuffers.utf8_sio
+      text_format(sio, options)
+      return sio.string
+    end
+
     def to_hash
       self.class.to_hash(self)
     end
@@ -294,6 +309,19 @@ module ProtocolBuffers
     # Shortcut, simply calls self.new.parse(io)
     def self.parse(io)
       self.new.parse(io)
+    end
+
+    # Parse the text as a text representation of this class, and merge the parsed fields
+    # into the current message.
+    def parse_from_text(text)
+      parser = TextParser.new
+      parser.parse_text(text, self)
+      return self
+    end
+
+    # Shortcut, simply calls self.new.parse_from_text(text)
+    def self.parse_from_text(text)
+      self.new.parse_from_text(text)
     end
 
     # Merge the attribute values from +obj+ into this Message, which must be of
