@@ -1,5 +1,9 @@
 require 'stringio'
 
+if RUBY_VERSION < "1.9"
+  raise("This version of ruby-protocol-buffers no longer supports Ruby 1.8.7")
+end
+
 module ProtocolBuffers
   def self.bin_sio(*args)
     sio = StringIO.new(*args)
