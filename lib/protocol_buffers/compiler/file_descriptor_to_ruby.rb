@@ -175,7 +175,7 @@ HEADER
   end
 
   def dump_service(package, service)
-    in_namespace("class", service.name, " < ::ProtocolBuffers::Service") do
+    in_namespace("class", service.name, "\n include ProtocolBuffers::Service\n") do
       fully_qualified_name = fully_qualified_name(package, service.name)
       line %{set_fully_qualified_name "#{fully_qualified_name}"}
       line

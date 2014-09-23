@@ -50,13 +50,17 @@ module Services
     optional :bytes, :four, 1
   end
 
-  class FooBarService < ::ProtocolBuffers::Service
+  class FooBarService
+    include ProtocolBuffers::Service
+
     set_fully_qualified_name "services.FooBarService"
 
     rpc :get_foo, "GetFoo", ::Services::FooRequest, ::Services::FooResponse
     rpc :get_bar, "GetBar", ::Services::BarRequest, ::Services::BarResponse
   end
-  class NoNameFooBarService < ::ProtocolBuffers::Service
+  class NoNameFooBarService
+    include ProtocolBuffers::Service
+
     # purposefully removing qualified name to make sure that nothing breaks
     #set_fully_qualified_name "services.NoNameFooBarService"
 
