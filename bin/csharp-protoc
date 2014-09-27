@@ -21,7 +21,7 @@ opts.on("-o", "--csharp_out", "=OUT_FILE",
         String) { |val| out_path = val }
 
 rest = opts.parse(ARGV)
-filenames = rest
+filename = rest.first
+tool_path = File.expand_path( File.join(__FILE__, "..", "protogen.exe" ) )
 
-p out_path
-p filenames
+`mono #{ tool_path } -i:#{ filename } -o:#{ out_path } -p:fixCase -p:abotRpc`
