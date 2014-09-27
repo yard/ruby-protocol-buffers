@@ -22,3 +22,6 @@ opts.on("-o", "--csharp_out", "=OUT_FILE",
 
 rest = opts.parse(ARGV)
 filenames = rest
+
+p out_path
+p filenames
