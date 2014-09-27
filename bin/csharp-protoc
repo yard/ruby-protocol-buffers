@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+begin
+  require 'rubygems'
+rescue LoadError
+end
+
+require 'optparse'
+
+opts = OptionParser.new
+opts.banner = <<BANNER
+Usage: #{opts.program_name} [OPTION] PROTO_FILES
+Parse PROTO_FILES and generate output based on the options given:
+BANNER
+opts.version = ProtocolBuffers::VERSION
+
+out_path = nil
+
+opts.on("-o", "--csharp_out", "=OUT_FILE",
+        "generates C# code to [OUT_FILE]", "[defaults to pwd]",
+        String) { |val| out_path = val }
+
+rest = opts.parse(ARGV)
+filenames = rest

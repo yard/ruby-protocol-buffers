@@ -23,17 +23,17 @@ require 'protocol_buffers'
 
 HEADER
 
-    descriptor.dependency.each do |dep|
-      dir      = File.dirname(dep)
-      filename = File.basename(dep, ".proto") + ".pb"
-      path = if dir == '.'
-        filename
-      else
-        File.join(dir, filename)
-      end
-      @io.write("begin; require '#{path}'; rescue LoadError; end\n")
-    end
-    @io.write("\n") unless descriptor.dependency.empty?
+    # descriptor.dependency.each do |dep|
+    #   dir      = File.dirname(dep)
+    #   filename = File.basename(dep, ".proto") + ".pb"
+    #   path = if dir == '.'
+    #     filename
+    #   else
+    #     File.join(dir, filename)
+    #   end
+    #   @io.write("begin; require '#{path}'; rescue LoadError; end\n")
+    # end
+    # @io.write("\n") unless descriptor.dependency.empty?
 
     in_namespace("module", @package_modules) do
       declare(descriptor.package, descriptor.message_type, descriptor.enum_type)
@@ -56,9 +56,7 @@ HEADER
 
     line %{# forward declarations}
     messages.each do |message|
-      line %{class #{name([@package_modules, message.name].flatten)}
-  include ProtocolBuffers::Message
-; end}
+      line %{class #{name([@package_modules, message.name].flatten)}; include ProtocolBuffers::Message; end}
     end
 
     if enums.empty?
@@ -126,14 +124,9 @@ HEADER
   }
 
   def dump_message(package, message)
-    in_namespace("class", message.name, "
-  include ProtocolBuffers::Message
-") do
+    in_namespace("class", message.name, "") do
       fully_qualified_name = fully_qualified_name(package, message.name)
       declare(fully_qualified_name, message.nested_type, message.enum_type)
-
-      line %{set_fully_qualified_name "#{fully_qualified_name}"}
-      line
 
       line %{# nested messages} unless message.nested_type.empty?
       message.nested_type.each { |inner| dump_message(fully_qualified_name, inner) }
@@ -164,9 +157,6 @@ HEADER
       line %{include ::ProtocolBuffers::Enum}
       line
 
-      line %{set_fully_qualified_name "#{fully_qualified_name(package, enum.name)}"}
-      line
-
       enum.value.each do |value|
         line %{#{capfirst(value.name)} = #{value.number}}
       end
@@ -175,10 +165,8 @@ HEADER
   end
 
   def dump_service(package, service)
-    in_namespace("class", service.name, "\n include ProtocolBuffers::Service\n") do
+    in_namespace("class", service.name, "\n    include ProtocolBuffers::Service\n") do
       fully_qualified_name = fully_qualified_name(package, service.name)
-      line %{set_fully_qualified_name "#{fully_qualified_name}"}
-      line
       service.method.each do |method|
         line %{rpc :#{underscore(method.name)}, "#{method.name}", #{service_typename(method.input_type)}, #{service_typename(method.output_type)}}
       end
