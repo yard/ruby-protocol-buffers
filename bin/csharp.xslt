@@ -510,10 +510,10 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
             return Send&lt;<xsl:apply-templates select="output_type"/>&gt;(@"<xsl:value-of select="name"/>", request);
         }
 
-        public async Task&lt;<xsl:apply-templates select="output_type"/>&gt;<xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>Async(<xsl:apply-templates select="input_type"/> request)
+<!--        public async Task&lt;<xsl:apply-templates select="output_type"/>&gt;<xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>Async(<xsl:apply-templates select="input_type"/> request)
         {
             return SendAsync&lt;<xsl:apply-templates select="output_type"/>&gt;(@"<xsl:value-of select="name"/>", request);
-        }
+        }-->
   </xsl:template>
 
   <xsl:template match="MethodDescriptorProto" mode="protoRpc">
