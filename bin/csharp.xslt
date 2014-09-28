@@ -507,12 +507,12 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
   <xsl:template match="MethodDescriptorProto" mode="abotRpc">
         public <xsl:apply-templates select="output_type"/><xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>(<xsl:apply-templates select="input_type"/> request)
         {
-            return (<xsl:apply-templates select="output_type"/>)Send(@"<xsl:value-of select="name"/>", request);
+            return Send&lt;<xsl:apply-templates select="output_type"/>&gt;(@"<xsl:value-of select="name"/>", request);
         }
 
         public async Task&lt;<xsl:apply-templates select="output_type"/>&gt;<xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>Async(<xsl:apply-templates select="input_type"/> request)
         {
-            return (<xsl:apply-templates select="output_type"/>)SendAsync(@"<xsl:value-of select="name"/>", request);
+            return SendAsync&lt;<xsl:apply-templates select="output_type"/>&gt;(@"<xsl:value-of select="name"/>", request);
         }
   </xsl:template>
 
@@ -524,7 +524,14 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
   </xsl:template>
 
   <xsl:template match="MethodDescriptorProto/input_type | MethodDescriptorProto/output_type">
-    <xsl:value-of select="substring-after(.,'.')"/>
+ 	<xsl:choose>
+      <xsl:when test="$optionFixCase"><xsl:call-template name="toPascalCase">
+          <xsl:with-param name="value" select="substring-after(.,'.')"/>
+          <xsl:with-param name="delimiter" select="'.'"/>
+          <xsl:with-param name="keepDelimiter" select="true()"/>
+        </xsl:call-template></xsl:when>
+      <xsl:otherwise><xsl:value-of select="substring-after(.,'.')"/></xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="MethodDescriptorProto" mode="CompleteEvent">
