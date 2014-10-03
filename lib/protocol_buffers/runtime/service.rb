@@ -28,7 +28,6 @@ module ProtocolBuffers
     #  Mix class methods in.
     #
     def self.included(base)
-      base.send :private_class_method, :new
       base.send :extend, ClassMethods
     end
 
