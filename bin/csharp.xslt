@@ -474,8 +474,11 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
 	</xsl:if>
 
 	<xsl:if test="$optionAbotRpc">
-    public partial class <xsl:value-of select="name"/> : global::Abot.Rpc.Entity 
+    public partial class <xsl:value-of select="name"/> : global::Abot.Entities.Base
     {
+    	public <xsl:value-of select="name"/>(global::Abot.App app, string id) : base(app, id) {
+    	}
+
         <xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpc"/>
     }
 	</xsl:if>
@@ -505,9 +508,9 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
   </xsl:template>
 
   <xsl:template match="MethodDescriptorProto" mode="abotRpc">
-        public <xsl:apply-templates select="output_type"/><xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>(<xsl:apply-templates select="input_type"/> request)
+        public global::Abot.Rpc.Task&lt;<xsl:apply-templates select="output_type"/>&gt;<xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>(<xsl:apply-templates select="input_type"/> request)
         {
-            return Send&lt;<xsl:apply-templates select="output_type"/>&gt;(@"<xsl:value-of select="name"/>", request);
+            return Invoke&lt;<xsl:apply-templates select="output_type"/>&gt;(@"<xsl:value-of select="name"/>", request);
         }
 
 <!--        public async Task&lt;<xsl:apply-templates select="output_type"/>&gt;<xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>Async(<xsl:apply-templates select="input_type"/> request)
