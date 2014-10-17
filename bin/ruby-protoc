@@ -9,10 +9,11 @@ require 'optparse'
 require 'tempfile'
 
 ruby_out = "."
-include_dirs = []
+include_dirs = [ File.expand_path( File.join(__FILE__, "..") ) + "/", "." ]
 
 require 'protocol_buffers'
 require 'protocol_buffers/compiler'
+require 'protocol_buffers/entities'
 
 opts = OptionParser.new
 opts.banner = <<BANNER
@@ -31,6 +32,8 @@ opts.on_tail("-h", "--help") { puts opts; exit }
 rest = opts.parse(ARGV)
 filenames = rest
 
+ruby_path = File.join(ruby_out, File.dirname(filenames.first), File.basename(filenames.first, ".proto") + ".rb")
+
 (puts "Missing input file.\n\n"; puts opts; exit) if filenames.empty?
 
 protocfile = Tempfile.new("ruby-protoc")
@@ -48,7 +51,7 @@ descriptor_set.file.each do |file_descriptor|
   fullpath = filenames[filenames.index{|path| path.include? file_descriptor.name}]
 
   if ruby_out
-    path = File.join(ruby_out,File.dirname(fullpath),File.basename(file_descriptor.name, ".proto") + ".rb")
+    path = ruby_path
     FileUtils.mkpath(File.dirname(path)) unless File.directory?(File.dirname(path))
     File.open(path, "wb") do |file|
       dumper = FileDescriptorToRuby.new(file_descriptor)

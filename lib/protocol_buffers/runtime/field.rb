@@ -119,10 +119,19 @@ module ProtocolBuffers
     end
 
     def initialize(otype, name, tag, opts = {})
-      @otype = otype
-      @name = name
-      @tag = tag
       @opts = opts.dup
+      @otype = otype
+      @real_name = name
+      @name = name.to_s + (entity? ? "_mailbox" : "")
+      @tag = tag
+    end
+
+    def entity?
+      @opts.has_key?(:entity)
+    end
+
+    def real_name
+      @real_name
     end
 
     def add_reader_to(klass)
@@ -135,6 +144,14 @@ module ProtocolBuffers
           @#{name}
         end
         EOF
+
+        if entity?
+          klass.class_eval <<-EOF, __FILE__, __LINE__+1
+          def #{real_name}
+            self.#{name}.try(:map, &:to_entity)
+          end
+          EOF
+        end
       else
         klass.class_eval <<-EOF, __FILE__, __LINE__+1
         def #{name}
@@ -145,6 +162,14 @@ module ProtocolBuffers
           @#{name}
         end
         EOF
+
+        if entity?
+          klass.class_eval <<-EOF, __FILE__, __LINE__+1
+          def #{real_name}
+            self.#{name}.try(:to_entity)
+          end
+          EOF
+        end
       end
     end
 
@@ -166,6 +191,14 @@ module ProtocolBuffers
             end
           end
         EOF
+
+        if entity?
+          klass.class_eval <<-EOF, __FILE__, __LINE__+1
+          def #{real_name}=(value)
+            self.#{name} = value.map(&:to_mailbox)
+          end
+          EOF
+        end
       else
         klass.class_eval <<-EOF, __FILE__, __LINE__+1
           def #{name}=(__value)
@@ -184,6 +217,14 @@ module ProtocolBuffers
             end
           end
         EOF
+
+        if entity?
+          klass.class_eval <<-EOF, __FILE__, __LINE__+1
+          def #{real_name}=(value)
+            self.#{name} = value.to_mailbox
+          end
+          EOF
+        end
       end
     end
 

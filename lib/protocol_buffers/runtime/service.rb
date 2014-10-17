@@ -16,11 +16,22 @@ module ProtocolBuffers
         @rpcs
       end
 
+      def client_rpcs
+        @client_rpcs
+      end
+
       def rpc(name, proto_name, request_type, response_type)
         @rpcs ||= Array.new
         @rpcs = @rpcs.dup
         @rpcs << Rpc.new(name.to_sym, proto_name, request_type, response_type, self).freeze
         @rpcs.freeze
+      end
+
+      def client_rpc(name, proto_name, request_type, response_type)
+        @client_rpcs ||= Array.new
+        @client_rpcs = @client_rpcs.dup
+        @client_rpcs << Rpc.new(name.to_sym, proto_name, request_type, response_type, self).freeze
+        @client_rpcs.freeze
       end
 
     end

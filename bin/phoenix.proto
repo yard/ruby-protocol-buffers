@@ -1,0 +1,9 @@
+package phoenix.messages;
+
+message Void {
+}
+
+message Mailbox {
+  required string entity = 1;
+  required string id     = 2;
+}

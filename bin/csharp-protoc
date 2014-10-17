@@ -6,6 +6,8 @@ rescue LoadError
 end
 
 require 'optparse'
+require 'tempfile'
+require 'protocol_buffers/entities'
 
 opts = OptionParser.new
 opts.banner = <<BANNER
@@ -23,5 +25,21 @@ opts.on("-o", "--csharp_out", "=OUT_FILE",
 rest = opts.parse(ARGV)
 filename = rest.first
 tool_path = File.expand_path( File.join(__FILE__, "..", "protogen.exe" ) )
+phoenix_include = File.expand_path( File.join(__FILE__, "..", "phoenix.proto" ) )
 
-`mono #{ tool_path } -i:#{ filename } -o:#{ out_path } -p:fixCase -p:abotRpc`
+protocfile = Tempfile.new("csharp-protoc")
+proto_file_name = protocfile.path
+
+`protoc -I#{ File.dirname(filename) } -I#{ File.dirname(phoenix_include) } -o#{ proto_file_name } #{ filename }`
+if $?.exitstatus != 0
+  puts "\nprotoc failed :("
+  exit 1
+end
+
+`mono #{ tool_path } -i:#{ proto_file_name } -o:#{ out_path } -p:fixCase -p:abotRpc`
+if $?.exitstatus != 0
+  puts "\nprotogen.exe failed :("
+  exit 1
+end
+
+protocfile.close(true)

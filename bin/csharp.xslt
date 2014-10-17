@@ -45,6 +45,9 @@
 //     the code is regenerated.
 // &lt;/auto-generated&gt;
 //------------------------------------------------------------------------------
+using System.Linq;
+using System.IO;
+using ProtoBuf;
 </xsl:text><!--
     --><xsl:apply-templates select="*"/><!--
   --></xsl:template>
@@ -362,7 +365,9 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
 
   <xsl:template match="FieldDescriptorProto" mode="checkDeprecated"><!--
     --><xsl:if test="options/deprecated='true'">global::System.Obsolete, </xsl:if><!--
-  --></xsl:template>
+  -->
+  </xsl:template>
+
   <xsl:template match="FieldDescriptorProto[label='LABEL_OPTIONAL' or not(label)]">
     <xsl:variable name="propType"><xsl:apply-templates select="." mode="type"/></xsl:variable>
     <xsl:variable name="format"><xsl:apply-templates select="." mode="format"/></xsl:variable>
@@ -386,6 +391,7 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
       <xsl:with-param name="field" select="$field"/>
       <xsl:with-param name="defaultValue" select="$defaultValue"/>
       <xsl:with-param name="specified" select="$specified"/>
+      <xsl:with-param name="entity" select="./options/entity"/>
     </xsl:call-template>
   </xsl:template>
   
@@ -404,6 +410,7 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
       <xsl:with-param name="propType" select="$type"/>
       <xsl:with-param name="name"><xsl:call-template name="pascal"/></xsl:with-param>
       <xsl:with-param name="field" select="$field"/>
+      <xsl:with-param name="entity" select="./options/entity"/>
     </xsl:call-template>    
   </xsl:template>
 
@@ -422,15 +429,30 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
     <xsl:param name="field"/>
     <xsl:param name="specified" select="false()"/>
     <xsl:param name="defaultValue"/>
+    <xsl:param name="entity"/>
+
+    <xsl:variable name="entityType"><xsl:call-template name="pascal"><xsl:with-param name="value" select="$entity" /></xsl:call-template></xsl:variable>
+    <xsl:variable name="entityField" select="string-length($entity)&gt;0" />
+    <xsl:variable name="defaultGetterSuffix"><xsl:if test="$entityField">Mailbox</xsl:if></xsl:variable>
+
     <xsl:variable name="nameNoKeyword">
       <xsl:call-template name="stripKeyword">
         <xsl:with-param name="value" select="$name"/>
       </xsl:call-template></xsl:variable>
-    public <xsl:value-of select="concat($propType,' ',$name)"/>
+    public <xsl:value-of select="concat($propType,' ',$name)"/><xsl:value-of select="$defaultGetterSuffix" />
     {
       get { return <xsl:value-of select="$field"/> <xsl:if test="$specified">?? <xsl:value-of select="$defaultValue"/></xsl:if>; }
       set { <xsl:if test="$optionPartialMethods">On<xsl:value-of select="$nameNoKeyword"/>Changing(value); </xsl:if><xsl:if test="$optionPreObservable">OnPropertyChanging(@"<xsl:value-of select="$nameNoKeyword"/>"); </xsl:if><xsl:value-of select="$field"/> = value; <xsl:if test="$optionObservable">OnPropertyChanged(@"<xsl:value-of select="$nameNoKeyword"/>"); </xsl:if><xsl:if test="$optionPartialMethods">On<xsl:value-of select="$nameNoKeyword"/>Changed();</xsl:if>}
-    }<xsl:if test="$optionPartialMethods">
+    }
+    <xsl:if test="$entityField">
+    public <xsl:value-of select="concat($entityType, ' ',$name)" />
+    {
+      get { return global::Abot.Entities.Base.FromMailbox&lt;<xsl:value-of select="$entityType" />&gt;( <xsl:value-of select="$field" /> ); }
+      set { <xsl:value-of select="$field" /> = value.ToMailbox(); }
+    }
+    </xsl:if>
+
+    <xsl:if test="$optionPartialMethods">
     partial void On<xsl:value-of select="$nameNoKeyword"/>Changing(<xsl:value-of select="$propType"/> value);
     partial void On<xsl:value-of select="$nameNoKeyword"/>Changed();</xsl:if><xsl:if test="$specified">
     [global::System.Xml.Serialization.XmlIgnore]
@@ -444,23 +466,42 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
     private void Reset<xsl:value-of select="$nameNoKeyword"/>() { <xsl:value-of select="$nameNoKeyword"/>Specified = false; }
     </xsl:if>
   </xsl:template>
+
   <xsl:template match="FieldDescriptorProto[label='LABEL_REPEATED']">
     <xsl:variable name="type"><xsl:apply-templates select="." mode="type"/></xsl:variable>
     <xsl:variable name="format"><xsl:apply-templates select="." mode="format"/></xsl:variable>
     <xsl:variable name="field"><xsl:apply-templates select="." mode="field"/></xsl:variable>
-    private <xsl:if test="not($optionXml)">readonly</xsl:if> global::System.Collections.Generic.List&lt;<xsl:value-of select="$type" />&gt; <xsl:value-of select="$field"/> = new global::System.Collections.Generic.List&lt;<xsl:value-of select="$type"/>&gt;();
+
+    <xsl:variable name="entity" select="./options/entity" />
+
+    <xsl:variable name="entityType"><xsl:call-template name="pascal"><xsl:with-param name="value" select="$entity" /></xsl:call-template></xsl:variable>
+    <xsl:variable name="entityField" select="string-length($entity)&gt;0" />
+    <xsl:variable name="defaultGetterSuffix"><xsl:if test="$entityField">Mailbox</xsl:if></xsl:variable>
+
+    private global::System.Collections.Generic.List&lt;<xsl:value-of select="$type" />&gt; <xsl:value-of select="$field"/> = new global::System.Collections.Generic.List&lt;<xsl:value-of select="$type"/>&gt;();
     [<xsl:apply-templates select="." mode="checkDeprecated"/>global::ProtoBuf.ProtoMember(<xsl:value-of select="number"/>, Name=@"<xsl:value-of select="name"/>", DataFormat = global::ProtoBuf.DataFormat.<xsl:value-of select="$format"/><xsl:if test="options/packed='true'">, Options = global::ProtoBuf.MemberSerializationOptions.Packed</xsl:if>)]<!--
     --><xsl:if test="$optionDataContract">
     [global::System.Runtime.Serialization.DataMember(Name=@"<xsl:value-of select="name"/>", Order = <xsl:value-of select="number"/>, IsRequired = false)]
     </xsl:if><xsl:if test="$optionXml">
     [global::System.Xml.Serialization.XmlElement(@"<xsl:value-of select="name"/>", Order = <xsl:value-of select="number"/>)]
     </xsl:if>
-    public global::System.Collections.Generic.List&lt;<xsl:value-of select="$type" />&gt; <xsl:call-template name="pascal"/>
+    public global::System.Collections.Generic.List&lt;<xsl:value-of select="$type" />&gt; <xsl:call-template name="pascal"/><xsl:value-of select="$defaultGetterSuffix" />
     {
-      get { return <xsl:value-of select="$field"/>; }<!--
-      --><xsl:if test="$optionXml">
-      set { <xsl:value-of select="$field"/> = value; }</xsl:if>
+      get { return <xsl:value-of select="$field"/>; }
+      set { <xsl:value-of select="$field"/> = value; }
     }
+    <xsl:if test="$entityField">
+    public global::System.Collections.Generic.List&lt;<xsl:value-of select="$entityType" />&gt; <xsl:call-template name="pascal"/>
+    {
+      get {
+        return <xsl:value-of select="$field"/>.Select(mailbox => global::Abot.Entities.Base.FromMailbox&lt;<xsl:value-of select="$entityType" />&gt;(mailbox)).ToList();
+      }
+
+      set {
+        <xsl:value-of select="$field"/> = value.Select(entity => entity.ToMailbox()).ToList();
+      }
+    }
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="ServiceDescriptorProto">
@@ -474,26 +515,30 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
 	</xsl:if>
 
 	<xsl:if test="$optionAbotRpc">
-    public partial class <xsl:value-of select="name"/> : global::Abot.Entities.Base
+  	public interface I<xsl:value-of select="name"/>Requirements {
+  		<xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpcRequirement"/>
+  	}
+
+    public partial class <xsl:value-of select="name"/> : global::Abot.Entities.Base, I<xsl:value-of select="name"/>Requirements
     {
     	public <xsl:value-of select="name"/>() : base() {
     	}
 
-    	public <xsl:value-of select="name"/>(global::Abot.App app, string id) : base(app, id) {
+    	public <xsl:value-of select="name"/>(string id) : base(id) {
     	}
 
-        <xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpc"/>
+      <xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpc"/>
     }
 	</xsl:if>
     
-    <xsl:if test="$optionProtoRpc">
+  <xsl:if test="$optionProtoRpc">
     public class <xsl:value-of select="name"/>Client : global::ProtoBuf.ServiceModel.RpcClient
     {
       public <xsl:value-of select="name"/>Client() : base(typeof(I<xsl:value-of select="name"/>)) { }
       <xsl:apply-templates select="method/MethodDescriptorProto" mode="protoRpc"/>
     }
     </xsl:if>
-    <xsl:apply-templates select="." mode="clientProxy"/>
+  <xsl:apply-templates select="." mode="clientProxy"/>
     
   </xsl:template>
 
@@ -510,21 +555,171 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
     </xsl:if>
   </xsl:template>
 
+  <xsl:template name="ConvertMessageIntoArgumentList">
+    <xsl:param name="messageType"/>
+
+    <xsl:variable name="currentPackage" select="//file/FileDescriptorProto/package" />
+
+    <xsl:variable name="result"><xsl:for-each select="//message_type/DescriptorProto/name[contains( concat('.', $currentPackage, '.', text()), $messageType)]/../field/FieldDescriptorProto"><xsl:call-template name="TypeToCSharpType">
+        <xsl:with-param name="type" select="type" />
+        <xsl:with-param name="type_name" select="type_name" />
+        <xsl:with-param name="entity" select="options/entity" />
+      </xsl:call-template><xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name" /><xsl:text xml:space="preserve">, </xsl:text></xsl:for-each></xsl:variable>
+
+    <xsl:value-of select="substring($result, 0, string-length($result) - 1)" />
+  </xsl:template>
+
+  <xsl:template name="ConvertMessageIntoArguments">
+    <xsl:param name="messageType" />
+    <xsl:param name="prefix" />
+
+    <xsl:variable name="currentPackage" select="//file/FileDescriptorProto/package" />
+
+    <xsl:variable name="result">
+      <xsl:for-each select="//message_type/DescriptorProto/name[contains( concat('.', $currentPackage, '.', text()), $messageType)]/../field/FieldDescriptorProto">
+      <xsl:value-of select="$prefix" />.<xsl:call-template name="pascal">
+        <xsl:with-param name="value" select="name"/>
+      </xsl:call-template><xsl:text xml:space="preserve">, </xsl:text></xsl:for-each>
+    </xsl:variable>
+
+    <xsl:value-of select="substring($result, 0, string-length($result) - 1)" />
+  </xsl:template>
+
+  <xsl:template name="MessageInitializerFromArgumentList">
+    <xsl:param name="messageType"/>
+
+    <xsl:variable name="currentPackage" select="//file/FileDescriptorProto/package" />
+    
+    <xsl:for-each select="//message_type/DescriptorProto/name[contains( concat('.', $currentPackage, '.', text()), $messageType)]/../field/FieldDescriptorProto">
+      <xsl:call-template name="pascal">
+        <xsl:with-param name="value" select="name"/>
+      </xsl:call-template><xsl:text xml:space="preserve"> = </xsl:text><xsl:value-of select="name" />,<xsl:text xml:space="preserve"> </xsl:text></xsl:for-each>
+  </xsl:template>
+
+  <xsl:template name="ExtractResultGenericType">
+    <xsl:param name="messageType"/>
+    <xsl:param name="methodProto"/>
+    
+    <xsl:variable name="currentPackage" select="//file/FileDescriptorProto/package" />
+
+    <xsl:if test="$methodProto/output_type[not( contains( text(), 'phoenix.messages.Void' ) )]">
+      <xsl:if test="$methodProto/output_type[not( contains( text(), 'phoenix.messages.Mailbox' ) )]">&lt;<xsl:call-template name="TypeToCSharpType">
+        <xsl:with-param name="type" select="//message_type/DescriptorProto/name[contains( concat('.', $currentPackage, '.', text()), $messageType)]/../field/FieldDescriptorProto/name[contains( text(), 'value' )]/../type" />
+        <xsl:with-param name="type_name" select="//message_type/DescriptorProto/name[contains( concat('.', $currentPackage, '.', text()), $messageType)]/../field/FieldDescriptorProto/name[contains( text(), 'value' )]/../type_name" />
+        <xsl:with-param name="entity" select="//message_type/DescriptorProto/name[contains( concat('.', $currentPackage, '.', text()), $messageType)]/../field/FieldDescriptorProto/name[contains( text(), 'value' )]/../options/entity" />
+      </xsl:call-template>&gt;</xsl:if>
+    </xsl:if>
+
+    <xsl:if test="$methodProto/output_type[contains( text(), 'phoenix.messages.Void' )]"></xsl:if>
+
+    <xsl:if test="$methodProto/output_type[contains( text(), 'phoenix.messages.Mailbox' )]">
+      <xsl:if test="$methodProto/options/entity">&lt;<xsl:call-template name="TypeToCSharpType">
+        <xsl:with-param name="type" select="$methodProto/options/entity" />
+      </xsl:call-template>&gt;</xsl:if>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="TypeToCSharpType">
+    <xsl:param name="type"/>
+    <xsl:param name="type_name"/>
+    <xsl:param name="entity"/>
+
+    <xsl:if test="not(string-length($entity)=0)">
+      <xsl:call-template name="pascal">
+          <xsl:with-param name="value" select="$entity"/>
+      </xsl:call-template>
+    </xsl:if>
+    <xsl:if test="string-length($entity)=0">
+      <xsl:if test="starts-with($type, 'TYPE_')"><xsl:choose>
+        <xsl:when test="not($type)">double</xsl:when>
+        <xsl:when test="$type='TYPE_DOUBLE'">double</xsl:when>
+        <xsl:when test="$type='TYPE_FLOAT'">float</xsl:when>
+        <xsl:when test="$type='TYPE_INT64'">long</xsl:when>
+        <xsl:when test="$type='TYPE_UINT64'">ulong</xsl:when>
+        <xsl:when test="$type='TYPE_INT32'">int</xsl:when>
+        <xsl:when test="$type='TYPE_FIXED64'">ulong</xsl:when>
+        <xsl:when test="$type='TYPE_FIXED32'">uint</xsl:when>
+        <xsl:when test="$type='TYPE_BOOL'">bool</xsl:when>
+        <xsl:when test="$type='TYPE_STRING'">string</xsl:when>
+        <xsl:when test="$type='TYPE_BYTES'">byte[]</xsl:when>
+        <xsl:when test="$type='TYPE_UINT32'">uint</xsl:when>
+        <xsl:when test="$type='TYPE_SFIXED32'">int</xsl:when>
+        <xsl:when test="$type='TYPE_SFIXED64'">long</xsl:when>
+        <xsl:when test="$type='TYPE_SINT32'">int</xsl:when>
+        <xsl:when test="$type='TYPE_SINT64'">long</xsl:when>
+        <xsl:when test="$type='TYPE_GROUP' or $type='TYPE_MESSAGE' or $type='TYPE_ENUM'"><xsl:call-template name="pascal">
+          <xsl:with-param name="value" select="substring-after($type_name,'.')"/>
+        </xsl:call-template></xsl:when>
+        <xsl:otherwise>
+          <xsl:message terminate="yes">
+            Field type not implemented: <xsl:value-of select="$type"/>
+          </xsl:message>
+        </xsl:otherwise>
+      </xsl:choose></xsl:if>
+
+      <xsl:if test="not( starts-with($type, 'TYPE_') )">
+        <xsl:call-template name="toPascalCase">
+          <xsl:with-param name="value" select="$type" />          
+          <xsl:with-param name="delimiter" select="'.'" />
+          <xsl:with-param name="keepDelimiter" select="true()" />
+        </xsl:call-template>
+      </xsl:if>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template match="MethodDescriptorProto" mode="abotRpc">
-        public global::Abot.Rpc.Task&lt;<xsl:apply-templates select="output_type"/>&gt;<xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>(<xsl:apply-templates select="input_type"/> request)
+  	<xsl:if test="not(options/clientside='true')">
+      <xsl:variable name="result_type"><xsl:call-template name="ExtractResultGenericType">
+        <xsl:with-param name="messageType" select="output_type"/>
+        <xsl:with-param name="methodProto" select="."/>
+      </xsl:call-template></xsl:variable>
+
+      <xsl:variable name="args"><xsl:call-template name="ConvertMessageIntoArgumentList">
+        <xsl:with-param name="messageType" select="input_type"/>
+      </xsl:call-template></xsl:variable>
+
+      <xsl:variable name="initializer"><xsl:call-template name="MessageInitializerFromArgumentList">
+        <xsl:with-param name="messageType" select="input_type"/>
+      </xsl:call-template></xsl:variable>
+
+  		public global::Abot.Rpc.Task<xsl:value-of select="$result_type"/><xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>(<xsl:value-of select="$args"/>)
         {
+            <xsl:apply-templates select="input_type"/> request = new <xsl:apply-templates select="input_type"/>() {
+              <xsl:value-of select="$initializer"/>
+            };
+
+            <xsl:if test="contains($result_type, '&gt;')">
+            return Invoke&lt;<xsl:value-of select="substring($result_type, 2, string-length($result_type) - 2)" />,<xsl:text xml:space="preserve"> </xsl:text><xsl:apply-templates select="output_type"/>&gt;(@"<xsl:value-of select="name"/>", request);
+            </xsl:if>
+
+            <xsl:if test="not(contains($result_type, '&gt;'))">
             return Invoke&lt;<xsl:apply-templates select="output_type"/>&gt;(@"<xsl:value-of select="name"/>", request);
+            </xsl:if>
         }
+    </xsl:if>
 
-        public global::Abot.Rpc.Task&lt;<xsl:apply-templates select="output_type"/>&gt;<xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>()
-        {
-            return Invoke&lt;<xsl:apply-templates select="output_type"/>&gt;(@"<xsl:value-of select="name"/>", new <xsl:apply-templates select="input_type"/>());
-        }
+    <xsl:if test="options/clientside='true'">
+      <xsl:text xml:space="preserve">public void </xsl:text>__<xsl:value-of select="name"/>(byte[] bytes)
+      {
+        MemoryStream messageStream = new MemoryStream( bytes ); 
+        <xsl:apply-templates select="input_type"/> request = Serializer.Deserialize&lt;<xsl:apply-templates select="input_type"/>&gt;( messageStream );
+        this.<xsl:value-of select="name"/>(<xsl:call-template name="ConvertMessageIntoArguments">
+          <xsl:with-param name="messageType" select="input_type"/>
+          <xsl:with-param name="prefix" select="'request'"/>
+        </xsl:call-template>);
+      }
+    </xsl:if>
+  </xsl:template>
 
-<!--        public async Task&lt;<xsl:apply-templates select="output_type"/>&gt;<xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>Async(<xsl:apply-templates select="input_type"/> request)
-        {
-            return SendAsync&lt;<xsl:apply-templates select="output_type"/>&gt;(@"<xsl:value-of select="name"/>", request);
-        }-->
+  <xsl:template match="MethodDescriptorProto" mode="abotRpcRequirement">
+    	<xsl:if test="options/clientside='true'">
+
+      <xsl:variable name="args"><xsl:call-template name="ConvertMessageIntoArgumentList">
+        <xsl:with-param name="messageType" select="input_type"/>
+      </xsl:call-template></xsl:variable>
+
+  		void <xsl:value-of select="name"/>(<xsl:value-of select="$args"/>);
+  		</xsl:if>
   </xsl:template>
 
   <xsl:template match="MethodDescriptorProto" mode="protoRpc">

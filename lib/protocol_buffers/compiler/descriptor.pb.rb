@@ -271,6 +271,7 @@ module Google
       optional :bool, :deprecated, 3, :default => false
       optional :string, :experimental_map_key, 9
       optional :bool, :weak, 10, :default => false
+      optional :string, :entity, 100001
       repeated ::Google::Protobuf::UninterpretedOption, :uninterpreted_option, 999
     end
 
@@ -305,6 +306,7 @@ module Google
       set_fully_qualified_name "google.protobuf.MethodOptions"
 
       repeated ::Google::Protobuf::UninterpretedOption, :uninterpreted_option, 999
+      optional :bool, :clientside, 100001
     end
 
     class UninterpretedOption

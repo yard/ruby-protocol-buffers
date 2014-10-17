@@ -146,6 +146,10 @@ HEADER
           fieldline << %{, :packed => true }
         end
 
+        if field.options.entity && field.options.entity.size > 0
+          fieldline << %{, :entity => "#{ service_typename(field.options.entity) }" }
+        end
+
         line fieldline
       end
     end
@@ -168,7 +172,7 @@ HEADER
     in_namespace("class", service.name, "\n    include ProtocolBuffers::Service\n") do
       fully_qualified_name = fully_qualified_name(package, service.name)
       service.method.each do |method|
-        line %{rpc :#{underscore(method.name)}, "#{method.name}", #{service_typename(method.input_type)}, #{service_typename(method.output_type)}}
+        line %{#{ method.options.clientside ? :client_rpc : :rpc } :#{underscore(method.name)}, "#{method.name}", #{service_typename(method.input_type)}, #{service_typename(method.output_type)}}
       end
     end
   end
