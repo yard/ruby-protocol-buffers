@@ -40,6 +40,8 @@ module ProtocolBuffers
     #
     def self.included(base)
       base.send :extend, ClassMethods
+      base.instance_variable_set(:@rpcs, nil)
+      base.instance_variable_set(:@client_rpc, nil)
     end
 
   end
