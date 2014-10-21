@@ -28,15 +28,6 @@ module ProtocolBuffers
             when /^\s*package/ then begin
               output << line
               output << 'import "phoenix.proto";'
-              output << 'import "descriptor.proto";
-
-extend google.protobuf.MethodOptions {
-  optional bool clientside = 100001;
-}
-
-extend google.protobuf.FieldOptions {
-  optional string entity = 100001;
-}'
             end
 
             when /^\s*entity/ then begin
@@ -67,7 +58,7 @@ extend google.protobuf.FieldOptions {
       #  Converts message fields which refer to entities (aka services) so that
       #  they are represented as mailboxes.
       def convert_entity_fields_to_mailboxes(output)
-        output.gsub(/(required|optional|repeated)\s*(entities\.[^\s]+)([^\;]+)\;/, '\1 phoenix.messages.Mailbox \3 [ (entity) = \'\2\' ];')
+        output.gsub(/(required|optional|repeated)\s*(entities\.[^\s]+)([^\;]+)\;/, '\1 phoenix.messages.Mailbox \3 [ (phoenix.messages.entity) = \'\2\' ];')
       end
 
       #  Converts entity definition into a protobuf service defintion.
@@ -83,7 +74,7 @@ extend google.protobuf.FieldOptions {
         args = match[3].strip
 
         messages << "message Client#{entity}#{ name }RequestMessage { #{ args.split(",").map.with_index { |ad, i| "required " + ad + " = #{i + 1};" }.join(' ') } }"
-        match[1] + "rpc #{ name } (Client#{entity}#{ name }RequestMessage) returns (phoenix.messages.Void) { option (clientside) = true; };"
+        match[1] + "rpc #{ name } (Client#{entity}#{ name }RequestMessage) returns (phoenix.messages.Void) { option (phoenix.messages.clientside) = true; };"
       end
 
       #  Converts server api definition into RPC definition.
