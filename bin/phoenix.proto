@@ -1,5 +1,15 @@
 package phoenix.messages;
 
+import "descriptor.proto";
+
+extend google.protobuf.MethodOptions {
+  optional bool clientside = 100001;
+}
+
+extend google.protobuf.FieldOptions {
+  optional string entity = 100001;
+}
+
 message Void {
 }
 
