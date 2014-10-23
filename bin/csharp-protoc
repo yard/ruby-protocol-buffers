@@ -30,7 +30,7 @@ phoenix_include = File.expand_path( File.join(__FILE__, "..", "phoenix.proto" ) 
 protocfile = Tempfile.new("csharp-protoc")
 proto_file_name = protocfile.path
 
-`protoc -I#{ File.dirname(filename) } -I#{ File.dirname(phoenix_include) } -o#{ proto_file_name } #{ filename }`
+`protoc -I. -I#{ File.dirname(filename) } -I#{ File.dirname(phoenix_include) } -o#{ proto_file_name } #{ filename }`
 if $?.exitstatus != 0
   puts "\nprotoc failed :("
   exit 1
