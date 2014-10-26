@@ -56,7 +56,7 @@ HEADER
 
     line %{# forward declarations}
     messages.each do |message|
-      line %{class #{name([@package_modules, message.name].flatten)}; include ProtocolBuffers::Message; end}
+      line %{class #{name([@package_modules, message.name].flatten)}; include ProtocolBuffers::Message; clear_fields!; end}
     end
 
     if enums.empty?
@@ -159,8 +159,7 @@ HEADER
   def dump_enum(package, enum)
     in_namespace("module", enum.name) do
       line %{include ::ProtocolBuffers::Enum}
-      line
-
+      
       enum.value.each do |value|
         line %{#{capfirst(value.name)} = #{value.number}}
       end
@@ -169,7 +168,7 @@ HEADER
   end
 
   def dump_service(package, service)
-    in_namespace("class", service.name, "\n    include ProtocolBuffers::Service\n") do
+    in_namespace("class", service.name, "\n    include ProtocolBuffers::Service\n    clear_rpcs!\n") do
       fully_qualified_name = fully_qualified_name(package, service.name)
       service.method.each do |method|
         line %{#{ method.options.clientside ? :client_rpc : :rpc } :#{underscore(method.name)}, "#{method.name}", #{service_typename(method.input_type)}, #{service_typename(method.output_type)}}

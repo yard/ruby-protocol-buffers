@@ -324,15 +324,18 @@ module ProtocolBuffers
       def repeated(type, name, tag, opts = {}) # :NODOC:
         define_field(:repeated, type, name, tag, opts)
       end
+
+      def clear_fields!
+        @fields = {}
+        @set_fields = {}
+      end
+
     end
 
     #  Define class-level methods.
     #
     def self.included(base)
       base.send :extend, ClassMethods
-
-      base.instance_variable_set(:@fields, nil)
-      base.instance_variable_set(:@set_fields, nil)
     end
 
     # Create a new Message of this class.
