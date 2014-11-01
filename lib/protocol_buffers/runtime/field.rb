@@ -166,7 +166,7 @@ module ProtocolBuffers
         if entity?
           klass.class_eval <<-EOF, __FILE__, __LINE__+1
           def #{real_name}
-            self.#{name}.try(:to_entity)
+            @set_fields[#{tag}] == nil ? nil : self.#{name}.try(:to_entity)
           end
           EOF
         end
