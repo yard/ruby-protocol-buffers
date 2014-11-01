@@ -506,39 +506,48 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
 
   <xsl:template match="ServiceDescriptorProto">
     <xsl:if test="($optionClientProxy or $optionDataContract)">
-    [global::System.ServiceModel.ServiceContract(Name = @"<xsl:value-of select="name"/>")]</xsl:if>
-    <xsl:if test="not($optionAbotRpc)">
-    public interface I<xsl:value-of select="name"/>
-    {
-      <xsl:apply-templates select="method"/>
-    }
-	</xsl:if>
+      [global::System.ServiceModel.ServiceContract(Name = @"<xsl:value-of select="name"/>")]</xsl:if>
+      <xsl:if test="not($optionAbotRpc)">
+      public interface I<xsl:value-of select="name"/>
+      {
+        <xsl:apply-templates select="method"/>
+      }
+  	</xsl:if>
 
-	<xsl:if test="$optionAbotRpc">
-  	public interface I<xsl:value-of select="name"/>Requirements {
-  		<xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpcRequirement"/>
-  	}
-
-    public partial class <xsl:value-of select="name"/> : global::Abot.Entities.Base, I<xsl:value-of select="name"/>Requirements
-    {
-    	public <xsl:value-of select="name"/>() : base() {
+  	<xsl:if test="$optionAbotRpc">
+    	public interface I<xsl:value-of select="name"/>Requirements {
+    		<xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpcRequirement"/>
     	}
 
-    	public <xsl:value-of select="name"/>(string id) : base(id) {
-    	}
+      public partial class <xsl:value-of select="name"/> : global::Abot.Entities.Base, I<xsl:value-of select="name"/>Requirements
+      {
+        protected <xsl:value-of select="options/properties_message"/> propertiesMessage = null;
 
-      <xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpc"/>
-    }
-	</xsl:if>
+        <xsl:call-template name="ConvertMessageIntoDelegatedProperties"><xsl:with-param name="messageType" select="options/properties_message"/></xsl:call-template>
+
+      	public <xsl:value-of select="name"/>() : base() {
+      	}
+
+      	public <xsl:value-of select="name"/>(string id) : base(id) {
+      	}
+
+        protected override void ApplyProperties( byte[] bytes ) {
+          MemoryStream messageStream = new MemoryStream( bytes ); 
+          this.propertiesMessage = Serializer.Deserialize&lt;<xsl:value-of select="options/properties_message"/>&gt;( messageStream );
+        }
+
+        <xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpc"/>
+      }
+  	</xsl:if>
     
-  <xsl:if test="$optionProtoRpc">
-    public class <xsl:value-of select="name"/>Client : global::ProtoBuf.ServiceModel.RpcClient
-    {
-      public <xsl:value-of select="name"/>Client() : base(typeof(I<xsl:value-of select="name"/>)) { }
-      <xsl:apply-templates select="method/MethodDescriptorProto" mode="protoRpc"/>
-    }
-    </xsl:if>
-  <xsl:apply-templates select="." mode="clientProxy"/>
+    <xsl:if test="$optionProtoRpc">
+      public class <xsl:value-of select="name"/>Client : global::ProtoBuf.ServiceModel.RpcClient
+      {
+        public <xsl:value-of select="name"/>Client() : base(typeof(I<xsl:value-of select="name"/>)) { }
+        <xsl:apply-templates select="method/MethodDescriptorProto" mode="protoRpc"/>
+      }
+      </xsl:if>
+    <xsl:apply-templates select="." mode="clientProxy"/>
     
   </xsl:template>
 
@@ -565,6 +574,21 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
         <xsl:with-param name="type_name" select="type_name" />
         <xsl:with-param name="entity" select="options/entity" />
       </xsl:call-template><xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name" /><xsl:text xml:space="preserve">, </xsl:text></xsl:for-each></xsl:variable>
+
+    <xsl:value-of select="substring($result, 0, string-length($result) - 1)" />
+  </xsl:template>
+
+  <xsl:template name="ConvertMessageIntoDelegatedProperties">
+    <xsl:param name="messageType"/>
+
+    <xsl:variable name="currentPackage" select="//file/FileDescriptorProto/package" />
+
+    <xsl:variable name="result"><xsl:for-each select="//message_type/DescriptorProto/name[contains( concat('.', $currentPackage, '.', text()), $messageType)]/../field/FieldDescriptorProto">public <xsl:call-template name="TypeToCSharpType">
+        <xsl:with-param name="type" select="type" />
+        <xsl:with-param name="type_name" select="type_name" />
+        <xsl:with-param name="entity" select="options/entity" />
+        </xsl:call-template><xsl:text xml:space="preserve"> </xsl:text><xsl:call-template name="pascal"><xsl:with-param name="value" select="name" /></xsl:call-template><xsl:text xml:space="preserve"> </xsl:text>{<xsl:text xml:space="preserve"> </xsl:text>get<xsl:text xml:space="preserve"> </xsl:text>{ return this.propertiesMessage.<xsl:call-template name="pascal"><xsl:with-param name="value" select="name" /></xsl:call-template>; } } 
+    </xsl:for-each></xsl:variable>
 
     <xsl:value-of select="substring($result, 0, string-length($result) - 1)" />
   </xsl:template>

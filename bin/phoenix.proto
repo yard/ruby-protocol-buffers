@@ -10,10 +10,15 @@ extend google.protobuf.FieldOptions {
   optional string entity = 100001;
 }
 
+extend google.protobuf.ServiceOptions {
+  optional string properties_message = 100001;
+}
+
 message Void {
 }
 
 message Mailbox {
-  required string entity = 1;
-  required string id     = 2;
+  required string entity          = 1;
+  required string id              = 2;
+  optional bytes properties_bytes = 3;
 }

@@ -20,6 +20,10 @@ module ProtocolBuffers
         @client_rpcs
       end
 
+      def properties(klass)
+        @properties = klass
+      end
+
       def rpc(name, proto_name, request_type, response_type)
         @rpcs ||= Array.new
         @rpcs = @rpcs.dup
@@ -37,6 +41,7 @@ module ProtocolBuffers
       def clear_rpcs!
         @rpcs = []
         @client_rpcs = []
+        @properties = nil
       end
 
     end

@@ -298,6 +298,7 @@ module Google
       set_fully_qualified_name "google.protobuf.ServiceOptions"
 
       repeated ::Google::Protobuf::UninterpretedOption, :uninterpreted_option, 999
+      optional :string, :properties_message, 100001
     end
 
     class MethodOptions

@@ -20,8 +20,12 @@ module ProtocolBuffers
         output = []
         #  container for requests and responses
         request_response_messages = []
+        #  container for property messages
+        property_messages = []
         #  current service
         entity = nil
+
+        request_response_messages << property_messages
 
         contents.each do |line|
           case line 
@@ -32,21 +36,31 @@ module ProtocolBuffers
 
             when /^\s*entity/ then begin
               entity = line.match(/\s*entity\s*([^\s\{}]+)\s*\{/)[1]
+
+              property_messages << [entity, []]
+
               output << request_response_messages
               output << convert_entity_definition(line)
+            end
+
+            when /^\s*property/ then begin
+              raise "Encountered property not being within and entity {} block!" if entity.blank?
+              property_messages.last.last << line
             end
 
             when /^\s*client/ then begin
               output << convert_client_api_definition(line, request_response_messages, entity)
             end
 
-          when /^\s*server/ then begin
+            when /^\s*server/ then begin
               output << convert_server_api_definition(line, request_response_messages, entity)
             end
           else
             output << line
           end
         end
+
+        property_messages.replace( convert_property_lines_into_messages(property_messages) )
 
         output = output.flatten.join("\n")
 
@@ -63,7 +77,23 @@ module ProtocolBuffers
 
       #  Converts entity definition into a protobuf service defintion.
       def convert_entity_definition(line)
-        line.gsub("entity", "service")
+        line.gsub("entity", "service") + "\n  option (phoenix.messages.properties_message) = \"#{ line.match(/\s*entity\s*([^\s\{}]+)\s*\{/)[1] }PropertiesMessage\";\n\n"
+      end
+
+      #
+      def convert_property_lines_into_messages(property_messages)
+        property_messages.map do |entry|
+          entity_name = entry.first
+          props = entry.last
+
+          result = "message #{entity_name}PropertiesMessage {\n"
+
+          result += props.map.with_index do |definition, index|
+            definition.gsub("property", "optional").gsub(";", " = #{index + 1};")
+          end.join("\n")
+
+          result + "\n}\n\n"
+        end
       end
 
       #  Converts client api definition into RPC definition.

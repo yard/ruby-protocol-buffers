@@ -168,8 +168,14 @@ HEADER
   end
 
   def dump_service(package, service)
-    in_namespace("class", service.name, "\n    include ProtocolBuffers::Service\n    clear_rpcs!\n") do
+    in_namespace("class", service.name, "") do
+      line %{include ProtocolBuffers::Service}
+      line %{clear_rpcs!}
+
       fully_qualified_name = fully_qualified_name(package, service.name)
+      
+      line %{properties #{ service.options.properties_message }}
+
       service.method.each do |method|
         line %{#{ method.options.clientside ? :client_rpc : :rpc } :#{underscore(method.name)}, "#{method.name}", #{service_typename(method.input_type)}, #{service_typename(method.output_type)}}
       end
