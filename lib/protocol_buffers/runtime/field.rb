@@ -93,6 +93,15 @@ module ProtocolBuffers
     end
   end
 
+  # Acts like an Array, but forwards mutating operations onto mailboxes.
+  class RepeatedEntityField < Array
+
+    def self.from_mailboxes(mailboxes)
+      new mailboxes.map(&:to_entity)
+    end
+
+  end
+
   class Field # :nodoc: all
     attr_reader :otype, :name, :tag
 
@@ -134,21 +143,24 @@ module ProtocolBuffers
       @real_name
     end
 
+    def synchronize!(object)
+      if repeated? && entity?
+        object.send(name.to_s).replace( object.send(real_name).map(&:to_mailbox) )
+      end
+    end
+
     def add_reader_to(klass)
       if repeated?
         klass.class_eval <<-EOF, __FILE__, __LINE__+1
         def #{name}
-          unless @#{name}
-            @#{name} = RepeatedField.new(fields[#{tag}])
-          end
-          @#{name}
+          @#{name} ||= RepeatedField.new(fields[#{tag}])
         end
         EOF
 
         if entity?
           klass.class_eval <<-EOF, __FILE__, __LINE__+1
           def #{real_name}
-            self.#{name}.try(:map, &:to_entity)
+            @#{real_name} ||= RepeatedEntityField.from_mailboxes( #{name} )
           end
           EOF
         end
@@ -177,6 +189,7 @@ module ProtocolBuffers
       if repeated?
         klass.class_eval <<-EOF, __FILE__, __LINE__+1
           def #{name}=(__value)
+            #{ entity? ? "@#{real_name} = nil" : "" }
             if __value.nil?
               #{name}.clear
             else
@@ -195,7 +208,7 @@ module ProtocolBuffers
         if entity?
           klass.class_eval <<-EOF, __FILE__, __LINE__+1
           def #{real_name}=(value)
-            self.#{name} = value.map(&:to_mailbox)
+            self.#{real_name}.replace( value )
           end
           EOF
         end

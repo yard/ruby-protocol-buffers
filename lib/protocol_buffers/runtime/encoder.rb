@@ -19,6 +19,8 @@ module ProtocolBuffers
         wire_type = field.wire_type
         tag = (field.tag << 3) | wire_type
 
+        field.synchronize!(message)
+
         if field.repeated?
           next if value.size == 0
 
