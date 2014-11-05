@@ -133,7 +133,7 @@ HEADER
 
       message.field.each do |field|
         typename = field_typename(field)
-        fieldline = %{#{LABEL_MAPPING[field.label]} #{typename}, :#{field.name}, #{field.number}}
+        fieldline = %{#{LABEL_MAPPING[field.label]} #{typename}, :#{underscore(field.name)}, #{field.number}}
         if field.type == TYPE_GROUP
           fieldline << %{, :group => true}
         end
