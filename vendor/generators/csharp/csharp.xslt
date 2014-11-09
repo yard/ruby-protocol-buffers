@@ -17,6 +17,7 @@
   <xsl:param name="asynchronous"/>
   <xsl:param name="clientProxy"/>
   <xsl:param name="abotRpc"/>
+  <xsl:param name="abotRpcRequirement"/>
   <xsl:param name="defaultNamespace"/>
   <xsl:param name="import"/>
   
@@ -35,6 +36,7 @@
   <xsl:variable name="optionAsynchronous" select="$asynchronous='true'"/>
   <xsl:variable name="optionClientProxy" select="$clientProxy='true'"/>
   <xsl:variable name="optionAbotRpc" select="$abotRpc='true'"/>
+  <xsl:variable name="optionsAbotRpcRequirement" select="$abotRpcRequirement='true'"/>
 
   <xsl:template match="/">
     <xsl:text disable-output-escaping="yes">//------------------------------------------------------------------------------
@@ -515,8 +517,11 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
   	</xsl:if>
 
   	<xsl:if test="$optionAbotRpc">
+      
     	public interface I<xsl:value-of select="name"/>Requirements {
-    		<xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpcRequirement"/>
+        <xsl:if test="$abotRpcRequirement">
+    		  <xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpcRequirement"/>
+        </xsl:if>
     	}
 
       public partial class <xsl:value-of select="name"/> : global::Abot.Entities.Base, I<xsl:value-of select="name"/>Requirements
@@ -533,7 +538,7 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
 
         protected override void ApplyProperties( byte[] bytes ) {
           MemoryStream messageStream = new MemoryStream( bytes ); 
-          this.propertiesMessage = Serializer.Deserialize&lt;<xsl:value-of select="options/properties_message"/>&gt;( messageStream );
+          this.propertiesMessage = global::SerializerHelper.Deserialize&lt;<xsl:value-of select="options/properties_message"/>&gt;( messageStream );
         }
 
         <xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpc"/>
@@ -722,16 +727,18 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
         }
     </xsl:if>
 
-    <xsl:if test="options/clientside='true'">
-      <xsl:text xml:space="preserve">public void </xsl:text>__<xsl:value-of select="name"/>(byte[] bytes)
-      {
-        MemoryStream messageStream = new MemoryStream( bytes ); 
-        <xsl:apply-templates select="input_type"/> request = Serializer.Deserialize&lt;<xsl:apply-templates select="input_type"/>&gt;( messageStream );
-        this.<xsl:value-of select="name"/>(<xsl:call-template name="ConvertMessageIntoArguments">
-          <xsl:with-param name="messageType" select="input_type"/>
-          <xsl:with-param name="prefix" select="'request'"/>
-        </xsl:call-template>);
-      }
+    <xsl:if test="$abotRpcRequirement">
+      <xsl:if test="options/clientside='true'">
+        <xsl:text xml:space="preserve">public void </xsl:text>__<xsl:value-of select="name"/>(byte[] bytes)
+        {
+          MemoryStream messageStream = new MemoryStream( bytes ); 
+          <xsl:apply-templates select="input_type"/> request = global::SerializerHelper.Deserialize&lt;<xsl:apply-templates select="input_type"/>&gt;( messageStream );
+          this.<xsl:value-of select="name"/>(<xsl:call-template name="ConvertMessageIntoArguments">
+            <xsl:with-param name="messageType" select="input_type"/>
+            <xsl:with-param name="prefix" select="'request'"/>
+          </xsl:call-template>);
+        }
+      </xsl:if>
     </xsl:if>
   </xsl:template>
 
