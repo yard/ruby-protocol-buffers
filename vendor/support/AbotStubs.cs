@@ -10,11 +10,11 @@ namespace Abot.Entities {
     protected virtual void ApplyProperties( byte[] bytes ) {
     }
 
-    protected Abot.Rpc.Task Invoke<T>(string name, object arg) {
+    protected Abot.Async.Task Invoke<T>(string name, object arg) {
       return null;
     }
 
-    protected Abot.Rpc.Task<R> Invoke<R, T>(string name, object arg) {
+    protected Abot.Async.Task<R> Invoke<R, T>(string name, object arg) {
       return null;
     }
 
