@@ -157,6 +157,13 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
   </xsl:template>
   
   <xsl:template match="DescriptorProto">
+  <xsl:variable name="name" select="name" />
+  <xsl:variable name="isResponseMessage" select="contains($name, 'ResponseMessage')" />
+  <xsl:variable name="responseMessageType"><xsl:if test="$isResponseMessage"><xsl:call-template name="TypeToCSharpType">
+        <xsl:with-param name="type" select="field/FieldDescriptorProto/type" />
+        <xsl:with-param name="type_name" select="field/FieldDescriptorProto/type_name" />
+        <xsl:with-param name="entity" select="field/FieldDescriptorProto/options/entity" />
+  </xsl:call-template></xsl:if></xsl:variable>
   [<xsl:if test="$optionFullFramework">global::System.Serializable, </xsl:if>global::ProtoBuf.ProtoContract(Name=@"<xsl:value-of select="name"/>")]
   <xsl:if test="$optionDataContract">[global::System.Runtime.Serialization.DataContract(Name=@"<xsl:value-of select="name"/>")]
   </xsl:if><xsl:if test="$optionXml">[global::System.Xml.Serialization.XmlType(TypeName=@"<xsl:value-of select="name"/>")]
@@ -164,7 +171,8 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
   -->public partial class <xsl:call-template name="pascal"/> : global::ProtoBuf.IExtensible<!--
   --><xsl:if test="$optionBinary">, global::System.Runtime.Serialization.ISerializable</xsl:if><!--
   --><xsl:if test="$optionObservable">, global::System.ComponentModel.INotifyPropertyChanged</xsl:if><!--
-  --><xsl:if test="$optionPreObservable">, global::System.ComponentModel.INotifyPropertyChanging</xsl:if>
+  --><xsl:if test="$optionPreObservable">, global::System.ComponentModel.INotifyPropertyChanging</xsl:if><!--
+  --><xsl:if test="$isResponseMessage">, global::Phoenix.Messages.IResponseMessage&lt;<xsl:value-of select="$responseMessageType" />&gt;</xsl:if>
   {
     public <xsl:call-template name="pascal"/>() {}
     <xsl:apply-templates select="*"/><xsl:if test="$optionBinary">
@@ -514,15 +522,15 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
       {
         <xsl:apply-templates select="method"/>
       }
-  	</xsl:if>
+    </xsl:if>
 
-  	<xsl:if test="$optionAbotRpc">
+    <xsl:if test="$optionAbotRpc">
       
-    	public interface I<xsl:value-of select="name"/>Requirements {
+      public interface I<xsl:value-of select="name"/>Requirements {
         <xsl:if test="$abotRpcRequirement">
-    		  <xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpcRequirement"/>
+          <xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpcRequirement"/>
         </xsl:if>
-    	}
+      }
 
       public partial class <xsl:value-of select="name"/> : global::Abot.Entities.Base, I<xsl:value-of select="name"/>Requirements
       {
@@ -530,11 +538,11 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
 
         <xsl:call-template name="ConvertMessageIntoDelegatedProperties"><xsl:with-param name="messageType" select="options/properties_message"/></xsl:call-template>
 
-      	public <xsl:value-of select="name"/>() : base() {
-      	}
+        public <xsl:value-of select="name"/>() : base() {
+        }
 
-      	public <xsl:value-of select="name"/>(string id) : base(id) {
-      	}
+        public <xsl:value-of select="name"/>(string id) : base(id) {
+        }
 
         protected override void ApplyProperties( byte[] bytes ) {
           MemoryStream messageStream = new MemoryStream( bytes ); 
@@ -543,7 +551,7 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
 
         <xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpc"/>
       }
-  	</xsl:if>
+    </xsl:if>
     
     <xsl:if test="$optionProtoRpc">
       public class <xsl:value-of select="name"/>Client : global::ProtoBuf.ServiceModel.RpcClient
@@ -697,7 +705,7 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
   </xsl:template>
 
   <xsl:template match="MethodDescriptorProto" mode="abotRpc">
-  	<xsl:if test="not(options/clientside='true')">
+    <xsl:if test="not(options/clientside='true')">
       <xsl:variable name="result_type"><xsl:call-template name="ExtractResultGenericType">
         <xsl:with-param name="messageType" select="output_type"/>
         <xsl:with-param name="methodProto" select="."/>
@@ -711,7 +719,7 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
         <xsl:with-param name="messageType" select="input_type"/>
       </xsl:call-template></xsl:variable>
 
-  		public global::Abot.Rpc.Task<xsl:value-of select="$result_type"/><xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>(<xsl:value-of select="$args"/>)
+      public global::Abot.Rpc.Task<xsl:value-of select="$result_type"/><xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>(<xsl:value-of select="$args"/>)
         {
             <xsl:apply-templates select="input_type"/> request = new <xsl:apply-templates select="input_type"/>() {
               <xsl:value-of select="$initializer"/>
@@ -743,14 +751,14 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
   </xsl:template>
 
   <xsl:template match="MethodDescriptorProto" mode="abotRpcRequirement">
-    	<xsl:if test="options/clientside='true'">
+      <xsl:if test="options/clientside='true'">
 
       <xsl:variable name="args"><xsl:call-template name="ConvertMessageIntoArgumentList">
         <xsl:with-param name="messageType" select="input_type"/>
       </xsl:call-template></xsl:variable>
 
-  		void <xsl:value-of select="name"/>(<xsl:value-of select="$args"/>);
-  		</xsl:if>
+      void <xsl:value-of select="name"/>(<xsl:value-of select="$args"/>);
+      </xsl:if>
   </xsl:template>
 
   <xsl:template match="MethodDescriptorProto" mode="protoRpc">
@@ -761,7 +769,7 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
   </xsl:template>
 
   <xsl:template match="MethodDescriptorProto/input_type | MethodDescriptorProto/output_type">
- 	<xsl:choose>
+  <xsl:choose>
       <xsl:when test="$optionFixCase"><xsl:call-template name="toPascalCase">
           <xsl:with-param name="value" select="substring-after(.,'.')"/>
           <xsl:with-param name="delimiter" select="'.'"/>

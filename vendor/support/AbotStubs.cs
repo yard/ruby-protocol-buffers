@@ -40,6 +40,10 @@ namespace Abot.Rpc {
 
 namespace Phoenix.Messages {
 
+  public interface IResponseMessage<T> {
+    T Value { get; }
+  }
+
   [global::System.Serializable, global::ProtoBuf.ProtoContract( Name = @"Mailbox" )]
   public partial class Mailbox : global::ProtoBuf.IExtensible {
     public Mailbox() {
