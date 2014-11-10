@@ -719,7 +719,7 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
         <xsl:with-param name="messageType" select="input_type"/>
       </xsl:call-template></xsl:variable>
 
-      public global::Abot.Rpc.Task<xsl:value-of select="$result_type"/><xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>(<xsl:value-of select="$args"/>)
+      public global::Abot.Async.Task<xsl:value-of select="$result_type"/><xsl:text xml:space="preserve"> </xsl:text><xsl:value-of select="name"/>(<xsl:value-of select="$args"/>)
         {
             <xsl:apply-templates select="input_type"/> request = new <xsl:apply-templates select="input_type"/>() {
               <xsl:value-of select="$initializer"/>
