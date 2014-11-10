@@ -30,7 +30,7 @@ namespace Abot.Entities {
   }
 }
 
-namespace Abot.Rpc {
+namespace Abot.Async {
 
   public class Task {}
 
