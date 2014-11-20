@@ -544,6 +544,17 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
         public <xsl:value-of select="name"/>(string id) : base(id) {
         }
 
+        public void InvokeClientMethod(string name, byte[] args) {
+            <xsl:if test="$abotRpcRequirement">
+            MemoryStream messageStream = new MemoryStream( args ); 
+            </xsl:if>
+
+            switch (name) {
+                <xsl:apply-templates select="method/MethodDescriptorProto" mode="abotRpcCaseClause"/>
+                default: { throw new System.NotImplementedException(); }
+            }
+        }
+
         protected override void ApplyProperties( byte[] bytes ) {
           MemoryStream messageStream = new MemoryStream( bytes ); 
           this.propertiesMessage = global::SerializerHelper.Deserialize&lt;<xsl:value-of select="options/properties_message"/>&gt;( messageStream );
@@ -734,17 +745,19 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
             </xsl:if>
         }
     </xsl:if>
+  </xsl:template>
 
+  <xsl:template match="MethodDescriptorProto" mode="abotRpcCaseClause">
     <xsl:if test="$abotRpcRequirement">
       <xsl:if test="options/clientside='true'">
-        <xsl:text xml:space="preserve">public void </xsl:text>__<xsl:value-of select="name"/>(byte[] bytes)
-        {
-          MemoryStream messageStream = new MemoryStream( bytes ); 
+        case "<xsl:value-of select="name"/>": {
           <xsl:apply-templates select="input_type"/> request = global::SerializerHelper.Deserialize&lt;<xsl:apply-templates select="input_type"/>&gt;( messageStream );
           this.<xsl:value-of select="name"/>(<xsl:call-template name="ConvertMessageIntoArguments">
             <xsl:with-param name="messageType" select="input_type"/>
             <xsl:with-param name="prefix" select="'request'"/>
           </xsl:call-template>);
+
+          break;
         }
       </xsl:if>
     </xsl:if>
