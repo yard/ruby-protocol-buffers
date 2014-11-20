@@ -18,6 +18,9 @@ namespace Abot.Entities {
       return null;
     }
 
+    public virtual void InvokeClientMethod(string name, byte[] args) {
+    }
+
     public static T FromMailbox<T>(Phoenix.Messages.Mailbox mb) {
       return default(T);
     }

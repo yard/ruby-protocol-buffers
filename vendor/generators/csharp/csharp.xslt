@@ -544,7 +544,7 @@ namespace <xsl:value-of select="translate($namespace,':-/\','__..')"/>
         public <xsl:value-of select="name"/>(string id) : base(id) {
         }
 
-        public void InvokeClientMethod(string name, byte[] args) {
+        public override void InvokeClientMethod(string name, byte[] args) {
             <xsl:if test="$abotRpcRequirement">
             MemoryStream messageStream = new MemoryStream( args ); 
             </xsl:if>
